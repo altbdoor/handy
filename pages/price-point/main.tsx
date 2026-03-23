@@ -1,5 +1,5 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { StrictMode } from "react-compat";
+import { createRoot } from "react-compat-dom/client";
 import { PricePoint } from "./PricePoint";
 import "./style.css";
 

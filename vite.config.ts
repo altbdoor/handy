@@ -19,6 +19,13 @@ const pagesInputs = pagesValidDirs.reduce(
 );
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "react-compat": "preact/compat",
+      "react-compat-dom": "preact/compat",
+      "react-compat/jsx-runtime": "preact/jsx-runtime",
+    },
+  },
   build: {
     reportCompressedSize: false,
     emptyOutDir: true,
@@ -32,11 +39,11 @@ export default defineConfig({
           groups: [
             {
               name: "react",
-              test: /node_modules\/react/,
+              test: /node_modules\/react(-dom)?\//,
             },
             {
               name: "preact",
-              test: /node_modules\/preact/,
+              test: /node_modules\/preact\//,
             },
           ],
         },
@@ -44,6 +51,19 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: "react-compat-jsx-pragma",
+      enforce: "pre",
+      transform: {
+        filter: {
+          code: { include: '"react-compat"' },
+          id: { include: /\.tsx$/ },
+        },
+        handler(code) {
+          return "/** @jsxImportSource react-compat */\n" + code;
+        },
+      },
+    },
     {
       name: "list-sites-in-homepage",
       transformIndexHtml(html, _ctx) {

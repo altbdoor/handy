@@ -6,6 +6,14 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["vite/client"],
     "skipLibCheck": true,
+    "paths": {
+      "react-compat": ["./node_modules/@types/react/index.d.ts"],
+      "react-compat/jsx-runtime": [
+        "./node_modules/@types/react/jsx-runtime.d.ts"
+      ],
+      "react-compat-dom": ["./node_modules/@types/react-dom/index.d.ts"],
+      "react-compat-dom/*": ["./node_modules/@types/react-dom/*"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
