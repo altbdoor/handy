@@ -4,9 +4,11 @@ import { defineConfig } from "vite";
 
 const pagesDir = resolve(import.meta.dirname, "pages");
 
-const pagesDirs = readdirSync(pagesDir).filter((name) =>
-  existsSync(join(pagesDir, name, "index.html")),
-);
+const pagesDirs = readdirSync(pagesDir)
+  .filter((name) => {
+    return existsSync(join(pagesDir, name, "index.html"));
+  })
+  .sort();
 
 const pagesInputs = pagesDirs.reduce(
   (acc, val) => {
@@ -45,9 +47,12 @@ export default defineConfig({
     {
       name: "list-sites-in-homepage",
       transformIndexHtml(html, _ctx) {
+        let patchedHtml = html;
+
+        // convert emoji favicons
         const faviconTest = /__FAVICON:(.+?)__/g;
         if (faviconTest.test(html)) {
-          html = html.replaceAll(faviconTest, (_match, p1) => {
+          patchedHtml = patchedHtml.replace(faviconTest, (_match, p1) => {
             let svgElem = `
               <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
                 <text x='50' y='50' font-size='90' text-anchor='middle' dominant-baseline='central'>
@@ -61,7 +66,8 @@ export default defineConfig({
           });
         }
 
-        if (html.includes("__PAGES__")) {
+        // handle home page listing
+        if (patchedHtml.includes("__PAGES__")) {
           const pagesLinks = pagesDirs.map((dir) => {
             return `
               <li>
@@ -72,14 +78,13 @@ export default defineConfig({
             `;
           });
 
-          const htmlWithPages = html.replace(
+          patchedHtml = patchedHtml.replace(
             "__PAGES__",
             `<ul>${pagesLinks.join("")}</ul>`,
           );
-          return htmlWithPages;
         }
 
-        return html;
+        return patchedHtml;
       },
     },
   ],

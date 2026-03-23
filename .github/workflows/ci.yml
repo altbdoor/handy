@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
@@ -30,6 +32,17 @@ jobs:
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5
+
+      - name: Inject page dates
+        run: |
+          for src in pages/*/index.html; do
+            PAGE_DIR="$(dirname "$src")"
+            LAST_DATE="$(git log -1 --date=format:%Y-%m-%dT%H:%M:%SZ --format=%cd -- "$PAGE_DIR")"
+            sed -i -e "s|__LAST_DATE__|${LAST_DATE}|g" "$src"
+          done
+
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          grep -rl 'CURRENT_DATE' . | xargs sed -i "s|__CURRENT_DATE__|$CURRENT_DATE|g"
 
       - run: |
           npm ci
