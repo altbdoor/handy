@@ -1,0 +1,68 @@
+@import "normalize.css/normalize.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  color: #000;
+}
+
+.container {
+  padding: 1rem 0;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  padding: 0.25rem 0.5rem;
+  text-wrap: nowrap;
+}
+
+tbody td {
+  padding: 0.25rem;
+  border-top: 1px solid lightgray;
+}
+
+tfoot td {
+  border-top: 1px solid lightgray;
+}
+
+input {
+  text-align: right;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+button {
+  padding: 0.25rem 0.5rem;
+}
+
+.field {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid yellow;
+  background: lightyellow;
+  color: #1f2430;
+}
+
+.field:focus {
+  outline: none;
+  border-color: lightblue;
+  box-shadow: 0 0 4px 0 lightblue;
+}
+
+.actions {
+  padding-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
