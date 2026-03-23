@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhatsApp redir</title>
+    <link rel="icon" href="__FAVICON:☎️__" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css"
+    />
+  </head>
+
+  <body>
+    <h3>WhatsApp Redir</h3>
+
+    <form method="GET" rel="noreferrer">
+      <p>
+        <label for="form__phone">Phone number:</label>
+        <input id="form__phone" type="text" autofocus required />
+      </p>
+
+      <p>
+        <label for="form__clean">Cleaned phone number:</label>
+        <input
+          id="form__clean"
+          name="phone"
+          type="text"
+          readonly
+          tabindex="-1"
+        />
+      </p>
+
+      <p>
+        <button formaction="https://web.whatsapp.com/send" type="submit">
+          Open in Web
+        </button>
+        <button formaction="https://api.whatsapp.com/send" type="submit">
+          Open in App
+        </button>
+      </p>
+    </form>
+    <hr />
+    <small
+      >Ported from
+      <a href="https://github.com/altbdoor/whatsapp-redir"
+        >original WhatsApp redir</a
+      >.</small
+    >
+
+    <script>
+      document.getElementById("form__phone").oninput = (evt) => {
+        document.getElementById("form__clean").value = evt.target.value.replace(
+          /[^0-9]/g,
+          "",
+        );
+      };
+    </script>
+  </body>
+</html>

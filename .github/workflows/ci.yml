@@ -36,6 +36,13 @@ jobs:
           npx tsc --build
           npx vite build --base "${{ steps.pages.outputs.base_path }}"
 
+      - name: Sanitize referrer policy
+        run: |
+          ZIP="https://github.com/altbdoor/clean-links/releases/latest/download/clean-links-linux.tgz"
+          curl --remote-name --location "$ZIP"
+          tar xzf clean-links-linux.tgz
+          ./clean-links run --fix-all ./dist/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:

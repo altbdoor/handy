@@ -50,7 +50,9 @@ export default defineConfig({
           html = html.replaceAll(faviconTest, (_match, p1) => {
             let svgElem = `
               <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-                <text y='.9em' font-size='90'>${p1}</text>
+                <text x='50' y='50' font-size='90' text-anchor='middle' dominant-baseline='central'>
+                  ${p1}
+                </text>
               </svg>
             `;
 
@@ -63,7 +65,7 @@ export default defineConfig({
           const pagesLinks = pagesDirs.map((dir) => {
             return `
               <li>
-                <a href="/${basename(pagesDir)}/${dir}/">
+                <a href="./${basename(pagesDir)}/${dir}/">
                   ${dir}
                 </a>
               </li>
@@ -72,7 +74,7 @@ export default defineConfig({
 
           const htmlWithPages = html.replace(
             "__PAGES__",
-            `<ul>${pagesLinks}</ul>`,
+            `<ul>${pagesLinks.join("")}</ul>`,
           );
           return htmlWithPages;
         }

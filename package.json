@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "pretty": "prettier -wu --log-level warn \"**/*\""
+    "pretty": "prettier --write --ignore-unknown --log-level warn \"**/*\""
   },
   "devDependencies": {
     "@types/node": "^24.12.0",
