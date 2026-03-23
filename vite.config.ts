@@ -4,13 +4,13 @@ import { defineConfig } from "vite";
 
 const pagesDir = resolve(import.meta.dirname, "pages");
 
-const pagesDirs = readdirSync(pagesDir)
+const pagesValidDirs = readdirSync(pagesDir)
   .filter((name) => {
     return existsSync(join(pagesDir, name, "index.html"));
   })
   .sort();
 
-const pagesInputs = pagesDirs.reduce(
+const pagesInputs = pagesValidDirs.reduce(
   (acc, val) => {
     acc[`${val}/index`] = resolve(pagesDir, val, "index.html");
     return acc;
@@ -68,7 +68,7 @@ export default defineConfig({
 
         // handle home page listing
         if (patchedHtml.includes("__PAGES__")) {
-          const pagesLinks = pagesDirs.map((dir) => {
+          const pagesLinks = pagesValidDirs.map((dir) => {
             return `
               <li>
                 <a href="./${basename(pagesDir)}/${dir}/">
