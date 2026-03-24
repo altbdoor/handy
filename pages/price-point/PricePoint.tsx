@@ -70,9 +70,9 @@ export const PricePoint = () => {
         <thead>
           <tr>
             <th style={{ width: 1 }}></th>
-            <th>Price</th>
-            <th>Unit</th>
-            <th>$/unit</th>
+            <th style={{ width: "35%" }}>Price</th>
+            <th style={{ width: "35%" }}>Unit</th>
+            <th style={{ width: "30%" }}>$/unit</th>
           </tr>
         </thead>
         <tbody>
@@ -110,7 +110,7 @@ export const PricePoint = () => {
                 />
               </td>
               <td>
-                <span>{getPerUnitLabel(row)}</span>
+                <span className="per-unit">{getPerUnitLabel(row)}</span>
               </td>
             </tr>
           ))}

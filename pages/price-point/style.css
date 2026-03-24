@@ -35,12 +35,6 @@ tfoot td {
   border-top: 1px solid lightgray;
 }
 
-input {
-  text-align: right;
-  font-family: monospace;
-  font-size: 1rem;
-}
-
 button {
   padding: 0.25rem 0.5rem;
 }
@@ -51,12 +45,22 @@ button {
   border: 1px solid yellow;
   background: lightyellow;
   color: #1f2430;
+  text-align: right;
+  font-family: monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
 }
 
 .field:focus {
   outline: none;
   border-color: lightblue;
   box-shadow: 0 0 4px 0 lightblue;
+}
+
+.per-unit {
+  font-family: monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
 }
 
 .actions {
