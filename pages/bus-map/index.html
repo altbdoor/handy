@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="last-modified" content="__LAST_DATE__" />
+
+    <title>bus map</title>
+    <link rel="icon" href="__FAVICON:🚌__" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.23.0/dist/maplibre-gl.min.css"
+    />
+  </head>
+  <body>
+    <div class="map">
+      <div class="map__time">Last updated: ...</div>
+      <div class="map__controls">
+        <button type="button" data-action="reload">🔄️</button>
+        <button type="button" data-action="recenter">📌</button>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.23.0/dist/maplibre-gl.min.js"></script>
+    <script type="module" src="/pages/bus-map/main.ts"></script>
+  </body>
+</html>
