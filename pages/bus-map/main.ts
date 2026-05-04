@@ -21,7 +21,10 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
     zoom: 15,
     dragRotate: false,
     touchPitch: false,
+    attributionControl: false,
   });
+
+  map.addControl(new maplibregl.AttributionControl(), "bottom-left");
 
   // add css classes during movement in map
   map.on("movestart", () => {
