@@ -20,6 +20,7 @@ const getPerUnitLabel = (row: Row) =>
 
 export const PricePoint = () => {
   const [rows, setRows] = useState<Row[]>([createRow(), createRow()]);
+  const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
   const updateRow = (id: string, field: "price" | "unit", value: number) => {
     setRows((prev) =>
@@ -36,7 +37,11 @@ export const PricePoint = () => {
   };
 
   const addRow = () => {
-    setRows((prev) => [...prev, createRow()]);
+    setRows((prev) => {
+      const next = [...prev, createRow()];
+      setFocusIndex(next.length - 1);
+      return next;
+    });
   };
 
   const removeRow = (id: string) => {
@@ -76,7 +81,7 @@ export const PricePoint = () => {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <tr
               key={row.id}
               style={
@@ -99,6 +104,7 @@ export const PricePoint = () => {
                 <NumeralInput
                   className="field"
                   hasDecimals
+                  autoFocus={focusIndex === index}
                   onChange={(value) => updateRow(row.id, "price", value)}
                 />
               </td>

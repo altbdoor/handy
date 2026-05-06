@@ -1,9 +1,10 @@
-import { useState } from "react-compat";
+import { useLayoutEffect, useRef, useState } from "react-compat";
 
 type NumeralInputProps = {
   hasDecimals?: boolean;
   onChange: (value: number) => void;
   className?: string;
+  autoFocus?: boolean;
 };
 
 const digitsOnly = (value: string) => value.replace(/\D/g, "");
@@ -24,13 +25,22 @@ export function NumeralInput({
   hasDecimals = true,
   onChange,
   className,
+  autoFocus = false,
 }: NumeralInputProps) {
   const [displayVal, setDisplayVal] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
   const divisor = hasDecimals ? 100 : 1;
   const placeholder = hasDecimals ? "0.00" : "0";
 
+  useLayoutEffect(() => {
+    if (autoFocus) {
+      ref.current?.focus();
+    }
+  }, [autoFocus]);
+
   return (
     <input
+      ref={ref}
       className={className}
       inputMode="numeric"
       pattern="[0-9]*"
