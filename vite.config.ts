@@ -18,6 +18,14 @@ const pagesInputs = pagesValidDirs.reduce(
   {} as { [key: string]: string },
 );
 
+function toEmojiCode(emoji: string) {
+  return Array.from(emoji)
+    .map((char) => char.codePointAt(0)?.toString(16) ?? "")
+    .filter((code) => code !== "fe0f")
+    .filter(Boolean)
+    .join("_");
+}
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -66,25 +74,25 @@ export default defineConfig({
     },
     {
       name: "list-sites-in-homepage",
-      transformIndexHtml(html, _ctx) {
+      transformIndexHtml: async (html, _ctx) => {
         let patchedHtml = html;
 
         // convert emoji favicons
         const faviconTest = /__FAVICON:(.+?)__/g;
-        if (faviconTest.test(html)) {
-          patchedHtml = patchedHtml.replace(faviconTest, (_match, p1) => {
-            let svgElem = `
-              <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-                <text x='50' y='50' font-size='90' text-anchor='middle' dominant-baseline='central'>
-                  ${p1}
-                </text>
-              </svg>
-            `;
 
-            svgElem = svgElem.replace(/\s+/g, " ").trim();
-            return `data:image/svg+xml,${encodeURIComponent(svgElem)}`;
-          });
-        }
+        patchedHtml = patchedHtml.replace(faviconTest, (_match, p1) => {
+          const emojiCode = toEmojiCode(p1);
+
+          if (emojiCode) {
+            const cdnBase = `https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji@v2.051`;
+            return [
+              `<link rel="icon" href="${cdnBase}/png/32/emoji_u${emojiCode}.png" sizes="32x32" />`,
+              `<link rel="apple-touch-icon" href="${cdnBase}/png/512/emoji_u${emojiCode}.png" />`,
+            ].join("\n");
+          }
+
+          return "";
+        });
 
         // handle home page listing
         if (patchedHtml.includes("__PAGES__")) {
