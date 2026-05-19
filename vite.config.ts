@@ -65,7 +65,7 @@ export default defineConfig({
       enforce: "pre",
       transform: {
         filter: {
-          code: { include: '"react-compat"' },
+          // code: { include: '"react-compat"' },
           id: { include: /\.tsx$/ },
         },
         handler(code) {

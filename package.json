@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
+    "@types/omggif": "^1.0.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "prettier": "^3.8.3",
@@ -20,7 +21,9 @@
   "dependencies": {
     "gtfs-realtime-bindings": "^1.1.1",
     "maplibre-gl": "^5.23.0",
+    "mp4-muxer": "^5.2.2",
     "normalize.css": "^8.0.1",
+    "omggif": "^1.0.10",
     "preact": "^10.29.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
