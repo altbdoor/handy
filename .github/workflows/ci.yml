@@ -46,8 +46,9 @@ jobs:
 
       - run: |
           npm ci
-          npx tsc --build
-          npx vite build --base "${{ steps.pages.outputs.base_path }}"
+          npm run build
+        env:
+          VITE_BASE: ${{ steps.pages.outputs.base_path }}
 
       - name: Sanitize referrer policy
         run: |

@@ -27,6 +27,7 @@ function toEmojiCode(emoji: string) {
 }
 
 export default defineConfig({
+  base: process.env.VITE_BASE ?? "/",
   resolve: {
     alias: {
       "react-compat": "preact/compat",
