@@ -48,18 +48,12 @@ export async function getVideoFromFrameData(
 ): Promise<Blob> {
   const sourceW = data[0].width;
   const sourceH = data[0].height;
+  const targetW = sourceW % 2 === 0 ? sourceW : sourceW - 1;
+  const targetH = sourceH % 2 === 0 ? sourceH : sourceH - 1;
 
-  const canvas = document.createElement("canvas");
+  const canvas = new OffscreenCanvas(targetW, targetH);
   const ctx = canvas.getContext("2d")!;
-  canvas.width = sourceW * 2;
-  canvas.height = sourceH * 2;
   ctx.imageSmoothingEnabled = false;
-
-  const tmpImgCanvas = document.createElement("canvas");
-  const tmpImgCtx = tmpImgCanvas.getContext("2d")!;
-  tmpImgCanvas.width = sourceW;
-  tmpImgCanvas.height = sourceH;
-  tmpImgCtx.imageSmoothingEnabled = false;
 
   const muxer = new Muxer({
     target: new ArrayBufferTarget(),
@@ -75,7 +69,7 @@ export async function getVideoFromFrameData(
     codec: "avc1.42E01E",
     width: canvas.width,
     height: canvas.height,
-    bitrate: 2_500_000,
+    bitrate: 12_000_000,
   };
 
   const { supported } = await VideoEncoder.isConfigSupported(encoderConfig);
@@ -94,23 +88,13 @@ export async function getVideoFromFrameData(
   data.forEach((datum) => {
     datum.frames.forEach((frame) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      tmpImgCtx.clearRect(0, 0, tmpImgCanvas.width, tmpImgCanvas.height);
 
-      // image data cannot be resized. parked into a tmp canvas
-      const imageData = new ImageData(frame.data as any, sourceW, sourceH);
-      tmpImgCtx.putImageData(imageData, 0, 0);
-
-      ctx.drawImage(
-        tmpImgCanvas,
-        0,
-        0,
-        sourceW,
-        sourceH,
-        0,
-        0,
-        sourceW * 2,
-        sourceH * 2,
+      const imageData = new ImageData(
+        frame.data as any,
+        datum.width,
+        datum.height,
       );
+      ctx.putImageData(imageData, 0, 0);
 
       const vf = new VideoFrame(canvas, {
         timestamp: timeMs * 1000,
