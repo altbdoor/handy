@@ -1,19 +1,21 @@
+import { ArrayBufferTarget, Muxer } from "mp4-muxer";
 import { GifReader } from "omggif";
-import { Muxer, ArrayBufferTarget } from "mp4-muxer";
 
-interface FileContainer {
+export interface GifAsset {
+  id: string;
   filename: string;
-  frames: FileContainerFrame[];
+  frames: GifFrame[];
   width: number;
   height: number;
+  durationInS: number;
 }
 
-interface FileContainerFrame {
+interface GifFrame {
   delayInMs: number;
   data: Uint8ClampedArray;
 }
 
-export async function getFrameDataFromFile(file: File): Promise<FileContainer> {
+export async function decodeGifFile(file: File): Promise<GifAsset> {
   const buffer = await file.arrayBuffer();
   const reader = new GifReader(new Uint8Array(buffer));
 
@@ -21,33 +23,37 @@ export async function getFrameDataFromFile(file: File): Promise<FileContainer> {
   const height = reader.height;
   const rgba = new Uint8ClampedArray(width * height * 4);
 
-  const data: FileContainer = {
-    filename: file.name,
-    frames: [],
-    width,
-    height,
-  };
-
-  Array(reader.numFrames())
+  const frames = Array(reader.numFrames())
     .fill(0)
-    .forEach((_, idx) => {
+    .map((_, idx) => {
       const frameInfo = reader.frameInfo(idx);
       reader.decodeAndBlitFrameRGBA(idx, rgba);
 
-      data.frames.push({
+      return {
         delayInMs: frameInfo.delay * 10,
         data: new Uint8ClampedArray(rgba),
-      });
+      };
     });
+
+  const data: GifAsset = {
+    id: crypto.randomUUID(),
+    filename: file.name,
+    frames,
+    width,
+    height,
+    durationInS: 1,
+  };
 
   return data;
 }
 
-export async function getVideoFromFrameData(
-  data: FileContainer[],
+export async function encodeMp4FromGifAssets(
+  assets: GifAsset[],
 ): Promise<Blob> {
-  const sourceW = data[0].width;
-  const sourceH = data[0].height;
+  const sourceW = assets[0].width;
+  const sourceH = assets[0].height;
+
+  // trim dimension because video encoder needs divisible by 2
   const targetW = sourceW % 2 === 0 ? sourceW : sourceW - 1;
   const targetH = sourceH % 2 === 0 ? sourceH : sourceH - 1;
 
@@ -65,6 +71,7 @@ export async function getVideoFromFrameData(
     fastStart: "in-memory",
   });
 
+  // baseline encoder config
   const encoderConfig: VideoEncoderConfig = {
     codec: "avc1.42E01E",
     width: canvas.width,
@@ -74,43 +81,85 @@ export async function getVideoFromFrameData(
 
   const { supported } = await VideoEncoder.isConfigSupported(encoderConfig);
   if (!supported) {
+    // todo: handle this and inform user
     throw new Error("VideoEncoder config not supported");
   }
 
+  let encoderError: Error | null = null;
   const encoder = new VideoEncoder({
     output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-    error: (e) => console.error("VideoEncoder error", e),
+    error: (err) => {
+      encoderError = new Error(`VideoEncoder error: ${String(err)}`);
+    },
   });
 
-  encoder.configure(encoderConfig);
+  try {
+    encoder.configure(encoderConfig);
 
-  let timeMs = 0;
-  data.forEach((datum) => {
-    datum.frames.forEach((frame) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let totalRenderTimeInMs = 0;
+    assets.forEach((currentAsset) => {
+      const targetDurationInMs = currentAsset.durationInS * 1000;
+      if (currentAsset.frames.length === 0 || targetDurationInMs <= 0) {
+        return;
+      }
 
-      const imageData = new ImageData(
-        frame.data as any,
-        datum.width,
-        datum.height,
-      );
-      ctx.putImageData(imageData, 0, 0);
+      let totalAssetTimeInMs = 0;
+      let loopFrameIdx = 0;
 
-      const vf = new VideoFrame(canvas, {
-        timestamp: timeMs * 1000,
-        duration: frame.delayInMs * 1000,
-      });
+      // continuous loop until we match the duration needed
+      while (totalAssetTimeInMs < targetDurationInMs) {
+        const loopFrame = currentAsset.frames[loopFrameIdx];
 
-      encoder.encode(vf);
-      vf.close();
-      timeMs += frame.delayInMs;
+        // compute remaining duration
+        const remainingDurationInMs = targetDurationInMs - totalAssetTimeInMs;
+        const frameDurationInMs = Math.min(
+          loopFrame.delayInMs,
+          remainingDurationInMs,
+        );
+
+        // draw frame into canvas
+        const imageData = new ImageData(
+          loopFrame.data as any,
+          currentAsset.width,
+          currentAsset.height,
+        );
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.putImageData(imageData, 0, 0);
+
+        // render canvas into video frame
+        const vf = new VideoFrame(canvas, {
+          timestamp: totalRenderTimeInMs * 1000,
+          duration: frameDurationInMs * 1000,
+        });
+
+        // encode
+        encoder.encode(vf);
+        vf.close();
+
+        if (encoderError) {
+          throw encoderError;
+        }
+
+        // update time and index
+        totalRenderTimeInMs += frameDurationInMs;
+        totalAssetTimeInMs += frameDurationInMs;
+        loopFrameIdx = (loopFrameIdx + 1) % currentAsset.frames.length;
+      }
     });
-  });
 
-  await encoder.flush();
-  muxer.finalize();
+    // finalize all video
+    await encoder.flush();
+    if (encoderError) {
+      throw encoderError;
+    }
 
-  const { buffer } = muxer.target;
-  const blob = new Blob([buffer], { type: "video/mp4" });
-  return blob;
+    muxer.finalize();
+
+    // obtain blob
+    const { buffer } = muxer.target;
+    const blob = new Blob([buffer], { type: "video/mp4" });
+    return blob;
+  } finally {
+    encoder.close();
+  }
 }
