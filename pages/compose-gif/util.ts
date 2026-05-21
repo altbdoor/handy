@@ -3,6 +3,7 @@ import { GifReader } from "omggif";
 
 export interface GifAsset {
   id: string;
+  queueId: string;
   filename: string;
   frames: GifFrame[];
   width: number;
@@ -37,6 +38,7 @@ export async function decodeGifFile(file: File): Promise<GifAsset> {
 
   const data: GifAsset = {
     id: crypto.randomUUID(),
+    queueId: "",
     filename: file.name,
     frames,
     width,
@@ -77,6 +79,7 @@ export async function encodeMp4FromGifAssets(
     width: canvas.width,
     height: canvas.height,
     bitrate: 12_000_000,
+    avc: { format: "annexb" },
   };
 
   const { supported } = await VideoEncoder.isConfigSupported(encoderConfig);
@@ -133,7 +136,7 @@ export async function encodeMp4FromGifAssets(
         });
 
         // encode
-        encoder.encode(vf);
+        encoder.encode(vf, { keyFrame: loopFrameIdx === 0 });
         vf.close();
 
         if (encoderError) {

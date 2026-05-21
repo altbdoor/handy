@@ -1,3 +1,4 @@
+import react from "@vitejs/plugin-react";
 import { existsSync, readdirSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { defineConfig } from "vite";
@@ -60,12 +61,13 @@ export default defineConfig({
     },
   },
   plugins: [
+    react(),
     {
       name: "react-compat-jsx-pragma",
       enforce: "pre",
       transform: {
         filter: {
-          // code: { include: '"react-compat"' },
+          code: { include: '"react-compat"' },
           id: { include: /\.tsx$/ },
         },
         handler(code) {

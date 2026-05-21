@@ -1,5 +1,5 @@
-import { StrictMode } from "react-compat";
-import { createRoot } from "react-compat-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { Container } from "./Container";
 // import "./style.css";
 
