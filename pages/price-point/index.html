@@ -10,7 +10,73 @@
   </head>
 
   <body>
-    <div id="root"></div>
-    <script type="module" src="/pages/price-point/main.tsx"></script>
+    <div class="container" x-data="root">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 1px"></th>
+            <th style="width: 35%">Price</th>
+            <th style="width: 35%">Unit</th>
+            <th style="width: 30%">$/unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="data in priceList" :key="data.id">
+            <tr
+              :style="{ background: data.id === lowestId ? 'lightgreen' : '' }"
+            >
+              <td>
+                <button
+                  class="remove"
+                  type="button"
+                  tabindex="-1"
+                  @click="removePriceList(data.id)"
+                >
+                  &times;
+                </button>
+              </td>
+              <td>
+                <input
+                  class="field"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="0.00"
+                  @input="handleNumeric($event, data.id, 'price', true)"
+                  :value="data.priceDisplay"
+                />
+              </td>
+              <td>
+                <input
+                  class="field"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="0"
+                  @input="handleNumeric($event, data.id, 'unit', false)"
+                  :value="data.unitDisplay"
+                />
+              </td>
+              <td>
+                <span
+                  class="per-unit"
+                  x-text="data.pricePerUnit > 0 ? data.pricePerUnit.toFixed(4) : '--'"
+                ></span>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4"></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="actions">
+        <button type="button" @click="appendPriceList()">add row</button>
+        <button type="button" @click="resetPriceList()">clear all</button>
+      </div>
+    </div>
+
+    <script type="module" src="/pages/price-point/main.ts"></script>
   </body>
 </html>
