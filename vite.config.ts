@@ -55,6 +55,10 @@ export default defineConfig({
               name: "preact",
               test: /node_modules\/preact\//,
             },
+            {
+              name: "alpinejs",
+              test: /node_modules\/alpinejs\//,
+            },
           ],
         },
       },
