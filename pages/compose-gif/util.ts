@@ -166,3 +166,30 @@ export async function encodeMp4FromGifAssets(
     encoder.close();
   }
 }
+
+export async function getPreviewBlobsFromGifAssets(assets: GifAsset[]) {
+  const canvas = new OffscreenCanvas(1, 1);
+  const ctx = canvas.getContext("2d")!;
+
+  const blobList: Blob[] = [];
+
+  for (const asset of assets) {
+    canvas.width = asset.width;
+    canvas.height = asset.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const imageData = new ImageData(
+      asset.frames[0].data as any,
+      asset.width,
+      asset.height,
+    );
+    ctx.putImageData(imageData, 0, 0);
+    const blob = await canvas.convertToBlob({
+      quality: 0.75,
+      type: "image/jpeg",
+    });
+    blobList.push(blob);
+  }
+
+  return blobList;
+}

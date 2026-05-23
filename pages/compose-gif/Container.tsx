@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState, type ChangeEventHandler } from "react";
-import { decodeGifFile, encodeMp4FromGifAssets, type GifAsset } from "./util";
+import { useEffect, useState, type ChangeEventHandler } from "react";
+import { useImgCache } from "./hooks";
+import { PoolList } from "./PoolList";
+import { QueueList } from "./QueueList";
+import {
+  decodeGifFile,
+  encodeMp4FromGifAssets,
+  getPreviewBlobsFromGifAssets,
+  type GifAsset,
+} from "./util";
 
 interface VideoData {
   src: string | undefined;
@@ -14,7 +22,7 @@ export function Container() {
   const [pool, setPool] = useState<GifAsset[]>([]);
   const [queue, setQueue] = useState<GifAsset[]>([]);
 
-  const previewImageCache = useRef<{ [key: string]: string }>({});
+  const { addCache, removeCache, clearCache } = useImgCache();
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = async (evt) => {
     const files = Array.from(evt.currentTarget.files ?? []);
@@ -26,27 +34,11 @@ export function Container() {
       files.map((file) => decodeGifFile(file)),
     );
 
-    const canvas = new OffscreenCanvas(1, 1);
-    const ctx = canvas.getContext("2d")!;
-
-    for (const asset of frameData) {
-      canvas.width = asset.width;
-      canvas.height = asset.height;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const imageData = new ImageData(
-        asset.frames[0].data as any,
-        asset.width,
-        asset.height,
-      );
-      ctx.putImageData(imageData, 0, 0);
-      const blob = await canvas.convertToBlob({
-        quality: 0.75,
-        type: "image/jpeg",
-      });
+    const blobs = await getPreviewBlobsFromGifAssets(frameData);
+    blobs.forEach((blob, index) => {
       const blobUrl = URL.createObjectURL(blob);
-      previewImageCache.current[asset.id] = blobUrl;
-    }
+      addCache(frameData[index].id, blobUrl);
+    });
 
     setPool((prev) => [...prev, ...frameData]);
   };
@@ -63,12 +55,7 @@ export function Container() {
   const removeFromPool = (removeId: string) => {
     setQueue((prev) => prev.filter((datum) => datum.id !== removeId));
     setPool((prev) => prev.filter((datum) => datum.id !== removeId));
-
-    const blobUrl = previewImageCache.current[removeId];
-    if (blobUrl) {
-      URL.revokeObjectURL(blobUrl);
-    }
-    delete previewImageCache.current[removeId];
+    removeCache(removeId);
   };
 
   const removeFromQueue = (removeQueueId: string) => {
@@ -119,11 +106,9 @@ export function Container() {
         URL.revokeObjectURL(videoData.src);
       }
 
-      Object.values(previewImageCache.current).forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
+      clearCache();
     };
-  }, []);
+  }, [videoData.src, clearCache]);
 
   return (
     <div className="container">
@@ -144,98 +129,25 @@ export function Container() {
                 />
               </label>
             </div>
-
-            <div className="d-flex flex-column gap-1">
-              {pool.map((asset) => (
-                <div key={asset.id} className="rounded bg-dark p-2">
-                  <div className="d-flex gap-2">
-                    <div>
-                      <img
-                        src={previewImageCache.current[asset.id]}
-                        alt={asset.filename}
-                        width={64}
-                        height={64}
-                        className="object-fit-cover"
-                      />
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div className="mb-2 text-truncate">{asset.filename}</div>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                        onClick={() => removeFromPool(asset.id)}
-                      >
-                        <i className="bi bi-trash-fill"></i>
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-secondary ms-2"
-                        onClick={() => addToQueue(asset)}
-                      >
-                        <i className="bi bi-arrow-right-circle"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PoolList
+              items={pool}
+              remove={removeFromPool}
+              addToQueue={addToQueue}
+            />
           </div>
         </div>
         <div className="col-3 py-3 vh-100">
           <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
             <h5 className="text-center">Queue</h5>
-
-            <div className="d-flex flex-column gap-1">
-              {queue.map((asset) => (
-                <div key={asset.queueId} className="rounded bg-dark p-2">
-                  <div className="d-flex gap-2">
-                    <div>
-                      <img
-                        src={previewImageCache.current[asset.id]}
-                        alt={asset.filename}
-                        width={64}
-                        height={64}
-                        className="object-fit-cover"
-                      />
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div className="mb-2 text-truncate">{asset.filename}</div>
-
-                      <div className="d-flex gap-1">
-                        <div className="input-group input-group-sm">
-                          <input
-                            className="form-control text-end"
-                            type="number"
-                            min={0.001}
-                            step={0.1}
-                            onChange={(evt) =>
-                              updateQueueDuration(
-                                asset.queueId,
-                                evt.currentTarget.value,
-                              )
-                            }
-                            value={asset.durationInS}
-                          />
-                          <span className="input-group-text">seconds</span>
-                        </div>
-
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => removeFromQueue(asset.queueId)}
-                        >
-                          <i className="bi bi-trash-fill"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <QueueList
+              items={queue}
+              remove={removeFromQueue}
+              updateDuration={updateQueueDuration}
+            />
           </div>
         </div>
         <div className="col py-3">
-          <div className="mb-2">
+          <div className="pb-2">
             <button
               type="button"
               className="btn btn-primary w-100"
