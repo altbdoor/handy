@@ -1,8 +1,8 @@
 import { useImgCache } from "./hooks";
-import type { GifAsset } from "./util";
+import type { QueueEntry } from "./util";
 
 interface QueueListProps {
-  items: GifAsset[];
+  items: QueueEntry[];
   remove: (id: string) => void;
   updateDuration: (id: string, val: string) => void;
 }
@@ -12,26 +12,26 @@ export function QueueList({ items, ...props }: QueueListProps) {
 
   return (
     <div className="d-flex flex-column gap-1">
-      {items.map((asset) => (
-        <div key={asset.queueId} className="rounded bg-dark p-2">
+      {items.map((entry) => (
+        <div key={entry.queueId} className="rounded bg-dark p-2">
           <div className="d-flex gap-2">
             <div>
               <img
-                src={getCache(asset.id)}
-                alt={asset.filename}
+                src={getCache(entry.poolId)}
+                alt={entry.filename}
                 width={64}
                 height={64}
                 className="object-fit-cover"
               />
             </div>
             <div className="min-width-0">
-              <div className="pb-2 text-truncate">{asset.filename}</div>
+              <div className="pb-2 text-truncate">{entry.filename}</div>
 
               <div className="d-flex gap-1">
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-danger"
-                  onClick={() => props.remove(asset.queueId)}
+                  onClick={() => props.remove(entry.queueId)}
                 >
                   <i className="bi bi-trash-fill"></i>
                 </button>
@@ -44,11 +44,11 @@ export function QueueList({ items, ...props }: QueueListProps) {
                     step={0.1}
                     onChange={(evt) =>
                       props.updateDuration(
-                        asset.queueId,
+                        entry.queueId,
                         evt.currentTarget.value,
                       )
                     }
-                    value={asset.durationInS}
+                    value={entry.durationInS}
                   />
                   <span className="input-group-text">s</span>
                 </div>

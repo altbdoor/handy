@@ -7,6 +7,7 @@ import {
   encodeMp4FromGifAssets,
   getPreviewBlobsFromGifAssets,
   type GifAsset,
+  type QueueEntry,
 } from "./util";
 
 interface VideoData {
@@ -19,10 +20,10 @@ export function Container() {
     src: undefined,
     size: "",
   });
-  const [pool, setPool] = useState<GifAsset[]>([]);
-  const [queue, setQueue] = useState<GifAsset[]>([]);
+  const [pool, setPool] = useState<Map<string, GifAsset>>(new Map());
+  const [queue, setQueue] = useState<QueueEntry[]>([]);
 
-  const { addCache, removeCache, clearCache } = useImgCache();
+  const { addCache, removeCache } = useImgCache();
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = async (evt) => {
     const files = Array.from(evt.currentTarget.files ?? []);
@@ -30,36 +31,45 @@ export function Container() {
       return;
     }
 
-    const frameData = await Promise.all(
-      files.map((file) => decodeGifFile(file)),
-    );
+    const frameData = new Map<string, GifAsset>();
+    const previewCanvas = new OffscreenCanvas(1, 1);
 
-    const blobs = await getPreviewBlobsFromGifAssets(frameData);
-    blobs.forEach((blob, index) => {
+    for (const file of files) {
+      const asset = await decodeGifFile(file);
+      frameData.set(asset.id, asset);
+
+      const blob = await getPreviewBlobsFromGifAssets(previewCanvas, asset);
       const blobUrl = URL.createObjectURL(blob);
-      addCache(frameData[index].id, blobUrl);
-    });
+      addCache(asset.id, blobUrl);
+    }
 
-    setPool((prev) => [...prev, ...frameData]);
+    setPool((prev) => new Map([...prev, ...frameData]));
   };
 
-  const addToQueue = (container: GifAsset) => {
-    setQueue((prev) => {
-      return [
-        ...prev,
-        { ...container, queueId: `${container.id}__${crypto.randomUUID()}` },
-      ];
-    });
+  const addToQueue = (asset: GifAsset) => {
+    setQueue((prev) => [
+      ...prev,
+      {
+        queueId: `${asset.id}__${crypto.randomUUID()}`,
+        poolId: asset.id,
+        filename: asset.filename,
+        durationInS: 1,
+      },
+    ]);
   };
 
   const removeFromPool = (removeId: string) => {
-    setQueue((prev) => prev.filter((datum) => datum.id !== removeId));
-    setPool((prev) => prev.filter((datum) => datum.id !== removeId));
+    setPool((prev) => {
+      const next = new Map(prev);
+      next.delete(removeId);
+      return next;
+    });
+    setQueue((prev) => prev.filter((entry) => entry.poolId !== removeId));
     removeCache(removeId);
   };
 
   const removeFromQueue = (removeQueueId: string) => {
-    setQueue((prev) => prev.filter((datum) => datum.queueId !== removeQueueId));
+    setQueue((prev) => prev.filter((entry) => entry.queueId !== removeQueueId));
   };
 
   const updateQueueDuration = (queueId: string, duration: string) => {
@@ -68,18 +78,14 @@ export function Container() {
       ? Math.max(0, parsedDuration)
       : 0;
 
-    setQueue((prev) =>
-      prev.map((datum) => {
-        if (datum.queueId !== queueId) {
-          return datum;
+    setQueue((prev) => {
+      return prev.map((entry) => {
+        if (entry.queueId !== queueId) {
+          return entry;
         }
-
-        return {
-          ...datum,
-          durationInS,
-        };
-      }),
-    );
+        return { ...entry, durationInS };
+      });
+    });
   };
 
   const composeVideo = async () => {
@@ -94,7 +100,11 @@ export function Container() {
       };
     });
 
-    const blob = await encodeMp4FromGifAssets(queue);
+    const resolved = queue.map((entry) => ({
+      ...pool.get(entry.poolId)!,
+      durationInS: entry.durationInS,
+    }));
+    const blob = await encodeMp4FromGifAssets(resolved);
     const blobUrl = URL.createObjectURL(blob);
     setVideoData({ src: blobUrl, size: (blob.size / 1024 / 1024).toFixed(2) });
   };
@@ -105,10 +115,8 @@ export function Container() {
       if (videoData.src) {
         URL.revokeObjectURL(videoData.src);
       }
-
-      clearCache();
     };
-  }, [videoData.src, clearCache]);
+  }, [videoData.src]);
 
   return (
     <div className="container">
@@ -130,7 +138,7 @@ export function Container() {
               </label>
             </div>
             <PoolList
-              items={pool}
+              items={[...pool.values()]}
               remove={removeFromPool}
               addToQueue={addToQueue}
             />

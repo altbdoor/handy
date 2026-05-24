@@ -1,6 +1,7 @@
 import {
   createContext,
   use,
+  useEffect,
   useMemo,
   useRef,
   type PropsWithChildren,
@@ -9,7 +10,6 @@ import {
 type ImageCacheContextValue = {
   addCache: (key: string, blobUrl: string) => void;
   removeCache: (key: string) => void;
-  clearCache: () => void;
   getCache: (key: string) => string | undefined;
 };
 
@@ -39,18 +39,21 @@ export function ImageCacheProvider({ children }: PropsWithChildren) {
 
         delete cache.current[key];
       },
-      clearCache: () => {
-        Object.values(cache.current).forEach((url) => {
-          if (url) {
-            URL.revokeObjectURL(url);
-          }
-        });
-
-        cache.current = {};
-      },
       getCache: (key: string) => {
         return cache.current[key];
       },
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      Object.values(cache.current).forEach((url) => {
+        if (url) {
+          URL.revokeObjectURL(url);
+        }
+      });
+
+      cache.current = {};
     };
   }, []);
 
