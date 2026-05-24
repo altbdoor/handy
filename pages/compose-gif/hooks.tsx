@@ -26,24 +26,22 @@ export function useImgCache() {
 export function ImageCacheProvider({ children }: PropsWithChildren) {
   const cache = useRef<{ [key: string]: string }>({});
 
-  const api: ImageCacheContextValue = useMemo(() => {
-    return {
-      addCache: (key: string, blobUrl: string) => {
-        cache.current[key] = blobUrl;
-      },
-      removeCache: (key: string) => {
-        const blobUrl = cache.current[key];
-        if (blobUrl) {
-          URL.revokeObjectURL(blobUrl);
-        }
+  const api = useRef<ImageCacheContextValue>({
+    addCache: (key: string, blobUrl: string) => {
+      cache.current[key] = blobUrl;
+    },
+    removeCache: (key: string) => {
+      const blobUrl = cache.current[key];
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
 
-        delete cache.current[key];
-      },
-      getCache: (key: string) => {
-        return cache.current[key];
-      },
-    };
-  }, []);
+      delete cache.current[key];
+    },
+    getCache: (key: string) => {
+      return cache.current[key];
+    },
+  });
 
   useEffect(() => {
     return () => {
@@ -57,5 +55,5 @@ export function ImageCacheProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
-  return <ImageCacheContext value={api}>{children}</ImageCacheContext>;
+  return <ImageCacheContext value={api.current}>{children}</ImageCacheContext>;
 }

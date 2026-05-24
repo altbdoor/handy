@@ -81,7 +81,7 @@ export async function encodeMp4FromGifAssets(
     codec: "avc1.42E01E",
     width: canvas.width,
     height: canvas.height,
-    bitrate: 12_000_000,
+    bitrate: 4_000_000,
     avc: { format: "annexb" },
   };
 
