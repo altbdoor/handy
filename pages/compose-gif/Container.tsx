@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEventHandler } from "react";
+import { useEffect, useRef, useState, type ChangeEventHandler } from "react";
 import { useImgCache } from "./hooks";
 import { PoolList } from "./PoolList";
 import { QueueList } from "./QueueList";
@@ -6,9 +6,8 @@ import {
   decodeGifFile,
   encodeMp4FromGifAssets,
   getPreviewBlobsFromGifAssets,
-  type GifAsset,
-  type QueueEntry,
 } from "./util";
+import { type GifAsset, type QueueEntry, type QueueFormFields } from "./model";
 
 interface VideoData {
   src: string | undefined;
@@ -22,6 +21,7 @@ export function Container() {
   });
   const [pool, setPool] = useState<Map<string, GifAsset>>(new Map());
   const [queue, setQueue] = useState<QueueEntry[]>([]);
+  const queueFormRef = useRef<Map<string, QueueFormFields>>(new Map());
 
   const { addCache, removeCache } = useImgCache();
 
@@ -47,15 +47,16 @@ export function Container() {
   };
 
   const addToQueue = (asset: GifAsset) => {
+    const queueId = `${asset.id}__${crypto.randomUUID()}`;
     setQueue((prev) => [
       ...prev,
       {
-        queueId: `${asset.id}__${crypto.randomUUID()}`,
+        queueId,
         poolId: asset.id,
         filename: asset.filename,
-        durationInS: 1,
       },
     ]);
+    queueFormRef.current.set(queueId, { durationInS: 1 });
   };
 
   const removeFromPool = (removeId: string) => {
@@ -70,6 +71,7 @@ export function Container() {
 
   const removeFromQueue = (removeQueueId: string) => {
     setQueue((prev) => prev.filter((entry) => entry.queueId !== removeQueueId));
+    queueFormRef.current.delete(removeQueueId);
   };
 
   const updateQueueDuration = (queueId: string, duration: string) => {
@@ -77,15 +79,7 @@ export function Container() {
     const durationInS = Number.isFinite(parsedDuration)
       ? Math.max(0, parsedDuration)
       : 0;
-
-    setQueue((prev) => {
-      return prev.map((entry) => {
-        if (entry.queueId !== queueId) {
-          return entry;
-        }
-        return { ...entry, durationInS };
-      });
-    });
+    queueFormRef.current.set(queueId, { durationInS });
   };
 
   const composeVideo = async () => {
@@ -102,7 +96,7 @@ export function Container() {
 
     const resolved = queue.map((entry) => ({
       ...pool.get(entry.poolId)!,
-      durationInS: entry.durationInS,
+      ...queueFormRef.current.get(entry.queueId)!,
     }));
     const blob = await encodeMp4FromGifAssets(resolved);
     const blobUrl = URL.createObjectURL(blob);

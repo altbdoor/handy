@@ -1,5 +1,5 @@
 import { useImgCache } from "./hooks";
-import type { GifAsset } from "./util";
+import type { GifAsset } from "./model";
 
 interface PoolListProps {
   items: GifAsset[];

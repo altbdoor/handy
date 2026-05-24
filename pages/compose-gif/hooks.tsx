@@ -2,7 +2,6 @@ import {
   createContext,
   use,
   useEffect,
-  useMemo,
   useRef,
   type PropsWithChildren,
 } from "react";
@@ -24,34 +23,32 @@ export function useImgCache() {
 }
 
 export function ImageCacheProvider({ children }: PropsWithChildren) {
-  const cache = useRef<{ [key: string]: string }>({});
+  const cache = useRef<Map<string, string>>(new Map());
 
   const api = useRef<ImageCacheContextValue>({
     addCache: (key: string, blobUrl: string) => {
-      cache.current[key] = blobUrl;
+      cache.current.set(key, blobUrl);
     },
     removeCache: (key: string) => {
-      const blobUrl = cache.current[key];
+      const blobUrl = cache.current.get(key);
       if (blobUrl) {
         URL.revokeObjectURL(blobUrl);
       }
 
-      delete cache.current[key];
+      cache.current.delete(key);
     },
     getCache: (key: string) => {
-      return cache.current[key];
+      return cache.current.get(key);
     },
   });
 
   useEffect(() => {
     return () => {
-      Object.values(cache.current).forEach((url) => {
-        if (url) {
-          URL.revokeObjectURL(url);
-        }
+      cache.current.forEach((url) => {
+        URL.revokeObjectURL(url);
       });
 
-      cache.current = {};
+      cache.current.clear();
     };
   }, []);
 

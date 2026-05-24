@@ -1,25 +1,6 @@
 import { ArrayBufferTarget, Muxer } from "mp4-muxer";
 import { GifReader } from "omggif";
-
-interface GifFrame {
-  delayInMs: number;
-  data: Uint8ClampedArray;
-}
-
-export interface GifAsset {
-  id: string;
-  filename: string;
-  frames: GifFrame[];
-  width: number;
-  height: number;
-}
-
-export interface QueueEntry {
-  queueId: string;
-  poolId: string;
-  filename: string;
-  durationInS: number;
-}
+import type { GifAsset, QueueFormFields } from "./model";
 
 export async function decodeGifFile(file: File): Promise<GifAsset> {
   const buffer = await file.arrayBuffer();
@@ -53,7 +34,7 @@ export async function decodeGifFile(file: File): Promise<GifAsset> {
 }
 
 export async function encodeMp4FromGifAssets(
-  assets: (GifAsset & Pick<QueueEntry, "durationInS">)[],
+  assets: (GifAsset & QueueFormFields)[],
 ): Promise<Blob> {
   const sourceW = assets[0].width;
   const sourceH = assets[0].height;

@@ -1,5 +1,5 @@
 import { useImgCache } from "./hooks";
-import type { QueueEntry } from "./util";
+import type { QueueEntry } from "./model";
 
 interface QueueListProps {
   items: QueueEntry[];
@@ -48,7 +48,7 @@ export function QueueList({ items, ...props }: QueueListProps) {
                         evt.currentTarget.value,
                       )
                     }
-                    value={entry.durationInS}
+                    defaultValue={1}
                   />
                   <span className="input-group-text">s</span>
                 </div>
