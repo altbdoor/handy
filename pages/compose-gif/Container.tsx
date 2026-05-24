@@ -168,6 +168,7 @@ export function Container() {
               playsInline
               disablePictureInPicture
               controlsList="nofullscreen noremoteplayback"
+              className="img-fluid"
             ></video>
 
             {videoData.src ? (

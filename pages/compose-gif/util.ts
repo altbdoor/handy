@@ -33,26 +33,35 @@ export async function decodeGifFile(file: File): Promise<GifAsset> {
   return data;
 }
 
+const RESIZE_FACTOR = 2;
+
 export async function encodeMp4FromGifAssets(
   assets: (GifAsset & QueueFormFields)[],
 ): Promise<Blob> {
   const sourceW = assets[0].width;
   const sourceH = assets[0].height;
 
-  // trim dimension because video encoder needs divisible by 2
-  const targetW = sourceW % 2 === 0 ? sourceW : sourceW - 1;
-  const targetH = sourceH % 2 === 0 ? sourceH : sourceH - 1;
+  let targetW = sourceW * RESIZE_FACTOR;
+  let targetH = sourceH * RESIZE_FACTOR;
 
-  const canvas = new OffscreenCanvas(targetW, targetH);
-  const ctx = canvas.getContext("2d")!;
-  ctx.imageSmoothingEnabled = false;
+  // trim dimension because video encoder needs divisible by 2
+  targetW = targetW % 2 === 0 ? targetW : targetW - 1;
+  targetH = targetH % 2 === 0 ? targetH : targetH - 1;
+
+  const multipliedCanvas = new OffscreenCanvas(targetW, targetH);
+  const multipliedCtx = multipliedCanvas.getContext("2d")!;
+  multipliedCtx.imageSmoothingEnabled = false;
+
+  const originalCanvas = new OffscreenCanvas(sourceW, sourceH);
+  const originalCtx = originalCanvas.getContext("2d")!;
+  originalCtx.imageSmoothingEnabled = false;
 
   const muxer = new Muxer({
     target: new ArrayBufferTarget(),
     video: {
       codec: "avc",
-      width: canvas.width,
-      height: canvas.height,
+      width: multipliedCanvas.width,
+      height: multipliedCanvas.height,
     },
     fastStart: "in-memory",
   });
@@ -60,10 +69,10 @@ export async function encodeMp4FromGifAssets(
   // baseline encoder config
   const encoderConfig: VideoEncoderConfig = {
     codec: "avc1.42E01E",
-    width: canvas.width,
-    height: canvas.height,
+    width: multipliedCanvas.width,
+    height: multipliedCanvas.height,
     bitrate: 4_000_000,
-    avc: { format: "annexb" },
+    // avc: { format: "annexb" },
   };
 
   const { supported } = await VideoEncoder.isConfigSupported(encoderConfig);
@@ -110,11 +119,31 @@ export async function encodeMp4FromGifAssets(
           currentAsset.width,
           currentAsset.height,
         );
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.putImageData(imageData, 0, 0);
+
+        originalCtx.clearRect(
+          0,
+          0,
+          originalCanvas.width,
+          originalCanvas.height,
+        );
+        originalCtx.putImageData(imageData, 0, 0);
+
+        multipliedCtx.clearRect(
+          0,
+          0,
+          multipliedCanvas.width,
+          multipliedCanvas.height,
+        );
+        multipliedCtx.drawImage(
+          originalCanvas,
+          0,
+          0,
+          originalCanvas.width * RESIZE_FACTOR,
+          originalCanvas.height * RESIZE_FACTOR,
+        );
 
         // render canvas into video frame
-        const vf = new VideoFrame(canvas, {
+        const vf = new VideoFrame(multipliedCanvas, {
           timestamp: totalRenderTimeInMs * 1000,
           duration: frameDurationInMs * 1000,
         });
