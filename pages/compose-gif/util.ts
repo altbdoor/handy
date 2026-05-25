@@ -103,15 +103,9 @@ export async function encodeMp4FromGifAssets(
       let loopFrameIdx = 0;
 
       // continuous loop until we match the duration needed
+      // may overrun — that's intentional, avoids truncated frames
       while (totalAssetTimeInMs < targetDurationInMs) {
         const loopFrame = currentAsset.frames[loopFrameIdx];
-
-        // compute remaining duration
-        const remainingDurationInMs = targetDurationInMs - totalAssetTimeInMs;
-        const frameDurationInMs = Math.min(
-          loopFrame.delayInMs,
-          remainingDurationInMs,
-        );
 
         // draw frame into canvas
         const imageData = new ImageData(
@@ -145,7 +139,7 @@ export async function encodeMp4FromGifAssets(
         // render canvas into video frame
         const vf = new VideoFrame(multipliedCanvas, {
           timestamp: totalRenderTimeInMs * 1000,
-          duration: frameDurationInMs * 1000,
+          duration: loopFrame.delayInMs * 1000,
         });
 
         // encode
@@ -157,8 +151,8 @@ export async function encodeMp4FromGifAssets(
         }
 
         // update time and index
-        totalRenderTimeInMs += frameDurationInMs;
-        totalAssetTimeInMs += frameDurationInMs;
+        totalRenderTimeInMs += loopFrame.delayInMs;
+        totalAssetTimeInMs += loopFrame.delayInMs;
         loopFrameIdx = (loopFrameIdx + 1) % currentAsset.frames.length;
       }
     });
