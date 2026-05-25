@@ -4,7 +4,6 @@ import type { QueueEntry } from "./model";
 interface QueueListProps {
   items: QueueEntry[];
   remove: (id: string) => void;
-  updateDuration: (id: string, val: string) => void;
 }
 
 export function QueueList({ items, ...props }: QueueListProps) {
@@ -40,14 +39,11 @@ export function QueueList({ items, ...props }: QueueListProps) {
                   <input
                     className="form-control text-end"
                     type="number"
-                    min={0.001}
-                    step={0.1}
-                    onChange={(evt) =>
-                      props.updateDuration(
-                        entry.queueId,
-                        evt.currentTarget.value,
-                      )
-                    }
+                    name="duration"
+                    form="compose-form"
+                    min={0}
+                    max={600}
+                    step="any"
                     defaultValue={1}
                   />
                   <span className="input-group-text">s</span>

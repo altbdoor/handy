@@ -15,6 +15,7 @@ export interface QueueEntry {
 export interface QueueFormFields {
   durationInS: number;
 }
+
 export interface GifFrame {
   delayInMs: number;
   data: Uint8ClampedArray;

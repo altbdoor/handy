@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEventHandler } from "react";
+import { useEffect, useState, type ChangeEventHandler } from "react";
 import { useImgCache } from "./hooks";
 import { PoolList } from "./PoolList";
 import { QueueList } from "./QueueList";
@@ -7,7 +7,7 @@ import {
   encodeMp4FromGifAssets,
   getPreviewBlobsFromGifAssets,
 } from "./util";
-import { type GifAsset, type QueueEntry, type QueueFormFields } from "./model";
+import { type GifAsset } from "./model";
 
 interface VideoData {
   src: string | undefined;
@@ -21,7 +21,6 @@ export function Container() {
   });
   const [pool, setPool] = useState<Map<string, GifAsset>>(new Map());
   const [queue, setQueue] = useState<QueueEntry[]>([]);
-  const queueFormRef = useRef<Map<string, QueueFormFields>>(new Map());
 
   const { addCache, removeCache } = useImgCache();
 
@@ -56,7 +55,6 @@ export function Container() {
         filename: asset.filename,
       },
     ]);
-    queueFormRef.current.set(queueId, { durationInS: 1 });
   };
 
   const removeFromPool = (removeId: string) => {
@@ -71,18 +69,11 @@ export function Container() {
 
   const removeFromQueue = (removeQueueId: string) => {
     setQueue((prev) => prev.filter((entry) => entry.queueId !== removeQueueId));
-    queueFormRef.current.delete(removeQueueId);
   };
 
-  const updateQueueDuration = (queueId: string, duration: string) => {
-    const parsedDuration = Number.parseFloat(duration);
-    const durationInS = Number.isFinite(parsedDuration)
-      ? Math.max(0, parsedDuration)
-      : 0;
-    queueFormRef.current.set(queueId, { durationInS });
-  };
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (evt) => {
+    evt.preventDefault();
 
-  const composeVideo = async () => {
     setVideoData((prev) => {
       if (prev.src) {
         URL.revokeObjectURL(prev.src);
@@ -94,9 +85,11 @@ export function Container() {
       };
     });
 
-    const resolved = queue.map((entry) => ({
+    const fd = new FormData(evt.currentTarget);
+    const durations = fd.getAll("duration") as string[];
+    const resolved = queue.map((entry, i) => ({
       ...pool.get(entry.poolId)!,
-      ...queueFormRef.current.get(entry.queueId)!,
+      durationInS: Number.parseFloat(durations[i]) ?? 0,
     }));
     const blob = await encodeMp4FromGifAssets(resolved);
     const blobUrl = URL.createObjectURL(blob);
@@ -141,24 +134,21 @@ export function Container() {
         <div className="col-3 py-3 vh-100">
           <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
             <h5 className="text-center">Queue</h5>
-            <QueueList
-              items={queue}
-              remove={removeFromQueue}
-              updateDuration={updateQueueDuration}
-            />
+            <QueueList items={queue} remove={removeFromQueue} />
           </div>
         </div>
         <div className="col py-3">
-          <div className="pb-2">
-            <button
-              type="button"
-              className="btn btn-primary w-100"
-              onClick={composeVideo}
-              disabled={queue.length === 0}
-            >
-              Compose video
-            </button>
-          </div>
+          <form id="compose-form" onSubmit={handleSubmit}>
+            <div className="pb-2">
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={queue.length === 0}
+              >
+                Compose video
+              </button>
+            </div>
+          </form>
           <div className="text-center">
             <video
               src={videoData.src}
