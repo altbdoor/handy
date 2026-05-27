@@ -2,6 +2,7 @@ import { useImgCache } from "./hooks";
 import type { QueueEntry } from "./model";
 
 interface QueueListProps {
+  formId: string;
   items: QueueEntry[];
   remove: (id: string) => void;
   move: (from: number, to: number) => void;
@@ -68,7 +69,7 @@ export function QueueList({ items, ...props }: QueueListProps) {
                     className="form-control text-end"
                     type="number"
                     name="duration"
-                    form="compose-form"
+                    form={props.formId}
                     min={0}
                     max={600}
                     step="any"

@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useState,
-  type ChangeEventHandler,
-  type SubmitEventHandler,
-} from "react";
+import { useState, type ChangeEventHandler } from "react";
 import { useImgCache } from "./hooks";
 import { PoolList } from "./PoolList";
 import { QueueList } from "./QueueList";
@@ -12,18 +7,12 @@ import {
   encodeMp4FromGifAssets,
   getPreviewBlobsFromGifAssets,
 } from "./util";
-import { type GifAsset } from "./model";
+import { type GifAsset, type QueueEntry } from "./model";
+import { Preview } from "./Preview";
 
-interface VideoData {
-  src: string | undefined;
-  size: string;
-}
+const FORM_ID = "compose-form";
 
 export function Container() {
-  const [videoData, setVideoData] = useState<VideoData>({
-    src: undefined,
-    size: "",
-  });
   const [pool, setPool] = useState<Map<string, GifAsset>>(new Map());
   const [queue, setQueue] = useState<QueueEntry[]>([]);
 
@@ -94,49 +83,33 @@ export function Container() {
     });
   };
 
-  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (evt) => {
-    evt.preventDefault();
+  const compose = async (fd: FormData) => {
+    if (queue.length === 0) {
+      return;
+    }
 
-    setVideoData((prev) => {
-      if (prev.src) {
-        URL.revokeObjectURL(prev.src);
-      }
-
-      return {
-        ...prev,
-        src: undefined,
-      };
-    });
-
-    const fd = new FormData(evt.currentTarget);
     const durations = fd.getAll("duration") as string[];
-    const resolved = queue.map((entry, i) => ({
+    const renderSize = parseInt(fd.get("renderSize") as string, 10);
+    const bgColor = fd.get("bgColor") as string;
+
+    const resolved = queue.map((entry, idx) => ({
       ...pool.get(entry.poolId)!,
-      durationInS: Number.parseFloat(durations[i]) ?? 0,
+      durationInS: Number.parseFloat(durations[idx]) ?? 0,
     }));
-    const blob = await encodeMp4FromGifAssets(resolved);
-    const blobUrl = URL.createObjectURL(blob);
-    setVideoData({ src: blobUrl, size: (blob.size / 1024 / 1024).toFixed(2) });
+
+    const blob = encodeMp4FromGifAssets(resolved, renderSize, bgColor);
+    return blob;
   };
 
-  useEffect(() => {
-    // clean up blob urls during close
-    return () => {
-      if (videoData.src) {
-        URL.revokeObjectURL(videoData.src);
-      }
-    };
-  }, [videoData.src]);
-
   return (
-    <div className="container">
+    <div className="container position-relative">
       <div className="row">
-        <div className="col-3 py-3 vh-100">
+        <div className="col-3 py-3 vh-100 position-sticky top-0">
           <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
             <div className="d-flex align-items-center justify-content-between pb-2">
-              <h4 className="m-0">
+              <h5 className="m-0">
                 <i className="bi bi-archive"></i> Pool
-              </h4>
+              </h5>
 
               <label className="btn btn-primary btn-sm">
                 Add files into Pool
@@ -157,12 +130,12 @@ export function Container() {
             />
           </div>
         </div>
-        <div className="col-3 py-3 vh-100">
+        <div className="col-3 py-3 vh-100 position-sticky top-0">
           <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
             <div className="d-flex align-items-center justify-content-between pb-2">
-              <h4 className="m-0">
+              <h5 className="m-0">
                 <i className="bi bi-layers"></i> Queue
-              </h4>
+              </h5>
 
               <button
                 type="button"
@@ -177,46 +150,16 @@ export function Container() {
               items={queue}
               remove={removeFromQueue}
               move={moveQueue}
+              formId={FORM_ID}
             />
           </div>
         </div>
         <div className="col py-3">
-          <form id="compose-form" onSubmit={handleSubmit}>
-            <div className="pb-2">
-              <button
-                type="submit"
-                className="btn btn-primary w-100"
-                disabled={queue.length === 0}
-              >
-                Compose video
-              </button>
-            </div>
-          </form>
-          <div className="text-center">
-            <video
-              src={videoData.src}
-              loop
-              muted
-              controls
-              playsInline
-              disablePictureInPicture
-              controlsList="nofullscreen noremoteplayback"
-              className="img-fluid"
-            ></video>
+          <h5 className="m-0 pt-2">
+            <i className="bi bi-file-play"></i> Preview
+          </h5>
 
-            {videoData.src ? (
-              <>
-                <div className="py-2">Size: {videoData.size}MB</div>
-                <a
-                  href={videoData.src}
-                  download="compiled.mp4"
-                  className="btn btn-outline-primary"
-                >
-                  Download video
-                </a>
-              </>
-            ) : null}
-          </div>
+          <Preview formId={FORM_ID} onCompose={compose} />
         </div>
       </div>
     </div>

@@ -33,16 +33,15 @@ export async function decodeGifFile(file: File): Promise<GifAsset> {
   return data;
 }
 
-const RESIZE_FACTOR = 2;
-
 export async function encodeMp4FromGifAssets(
   assets: (GifAsset & QueueFormFields)[],
+  resizeFactor: number,
 ): Promise<Blob> {
   const sourceW = assets[0].width;
   const sourceH = assets[0].height;
 
-  let targetW = sourceW * RESIZE_FACTOR;
-  let targetH = sourceH * RESIZE_FACTOR;
+  let targetW = sourceW * resizeFactor;
+  let targetH = sourceH * resizeFactor;
 
   // trim dimension because video encoder needs divisible by 2
   targetW = targetW % 2 === 0 ? targetW : targetW - 1;
@@ -66,13 +65,16 @@ export async function encodeMp4FromGifAssets(
     fastStart: "in-memory",
   });
 
-  // baseline encoder config
+  const pixels = targetW * targetH;
+
+  // level 3.0: 414,720px, 3.1: 921,600px, 4.0: 2,097,152px
+  const codecLevel = pixels <= 414_720 ? "1E" : pixels <= 921_600 ? "1F" : "28";
+
   const encoderConfig: VideoEncoderConfig = {
-    codec: "avc1.42E01E",
+    codec: `avc1.42E0${codecLevel}`,
     width: multipliedCanvas.width,
     height: multipliedCanvas.height,
     bitrate: 4_000_000,
-    // avc: { format: "annexb" },
   };
 
   const { supported } = await VideoEncoder.isConfigSupported(encoderConfig);
@@ -132,8 +134,8 @@ export async function encodeMp4FromGifAssets(
           originalCanvas,
           0,
           0,
-          originalCanvas.width * RESIZE_FACTOR,
-          originalCanvas.height * RESIZE_FACTOR,
+          originalCanvas.width * resizeFactor,
+          originalCanvas.height * resizeFactor,
         );
 
         // render canvas into video frame
