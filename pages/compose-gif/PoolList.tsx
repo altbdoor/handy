@@ -10,6 +10,15 @@ interface PoolListProps {
 export function PoolList({ items, ...props }: PoolListProps) {
   const { getCache } = useImgCache();
 
+  if (items.length === 0) {
+    return (
+      <div className="p-3 text-center">
+        <i className="bi bi-info-circle"></i> No files in pool. Add files with
+        the button above.
+      </div>
+    );
+  }
+
   return (
     <div className="d-flex flex-column gap-1">
       {items.map((asset) => (

@@ -4,16 +4,44 @@ import type { QueueEntry } from "./model";
 interface QueueListProps {
   items: QueueEntry[];
   remove: (id: string) => void;
+  move: (from: number, to: number) => void;
 }
 
 export function QueueList({ items, ...props }: QueueListProps) {
   const { getCache } = useImgCache();
 
+  if (items.length === 0) {
+    return (
+      <div className="p-3 text-center">
+        <i className="bi bi-info-circle"></i> No files in queue. Add files in
+        from the pool.
+      </div>
+    );
+  }
+
   return (
     <div className="d-flex flex-column gap-1">
-      {items.map((entry) => (
+      {items.map((entry, idx) => (
         <div key={entry.queueId} className="rounded bg-dark p-2">
           <div className="d-flex gap-2">
+            <div className="d-flex flex-column gap-1">
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => props.move(idx, idx - 1)}
+                disabled={idx === 0}
+              >
+                <i className="bi bi-arrow-up"></i>
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => props.move(idx, idx + 1)}
+                disabled={idx === items.length - 1}
+              >
+                <i className="bi bi-arrow-down"></i>
+              </button>
+            </div>
             <div>
               <img
                 src={getCache(entry.poolId)}

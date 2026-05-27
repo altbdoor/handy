@@ -1,4 +1,9 @@
-import { useEffect, useState, type ChangeEventHandler } from "react";
+import {
+  useEffect,
+  useState,
+  type ChangeEventHandler,
+  type SubmitEventHandler,
+} from "react";
 import { useImgCache } from "./hooks";
 import { PoolList } from "./PoolList";
 import { QueueList } from "./QueueList";
@@ -71,7 +76,25 @@ export function Container() {
     setQueue((prev) => prev.filter((entry) => entry.queueId !== removeQueueId));
   };
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (evt) => {
+  const moveQueue = (from: number, to: number) => {
+    setQueue((prev) => {
+      if (to < 0 || to >= prev.length) {
+        return prev;
+      }
+
+      return prev.map((item, idx) => {
+        if (idx === from) {
+          return prev[to];
+        }
+        if (idx === to) {
+          return prev[from];
+        }
+        return item;
+      });
+    });
+  };
+
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (evt) => {
     evt.preventDefault();
 
     setVideoData((prev) => {
@@ -110,10 +133,12 @@ export function Container() {
       <div className="row">
         <div className="col-3 py-3 vh-100">
           <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
-            <h5 className="text-center">Pool</h5>
+            <div className="d-flex align-items-center justify-content-between pb-2">
+              <h4 className="m-0">
+                <i className="bi bi-archive"></i> Pool
+              </h4>
 
-            <div className="text-center pb-2">
-              <label className="btn btn-primary">
+              <label className="btn btn-primary btn-sm">
                 Add files into Pool
                 <input
                   type="file"
@@ -124,6 +149,7 @@ export function Container() {
                 />
               </label>
             </div>
+
             <PoolList
               items={[...pool.values()]}
               remove={removeFromPool}
@@ -133,8 +159,25 @@ export function Container() {
         </div>
         <div className="col-3 py-3 vh-100">
           <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
-            <h5 className="text-center">Queue</h5>
-            <QueueList items={queue} remove={removeFromQueue} />
+            <div className="d-flex align-items-center justify-content-between pb-2">
+              <h4 className="m-0">
+                <i className="bi bi-layers"></i> Queue
+              </h4>
+
+              <button
+                type="button"
+                className="btn btn-outline-danger btn-sm"
+                onClick={() => setQueue([])}
+              >
+                Clear queue
+              </button>
+            </div>
+
+            <QueueList
+              items={queue}
+              remove={removeFromQueue}
+              move={moveQueue}
+            />
           </div>
         </div>
         <div className="col py-3">
