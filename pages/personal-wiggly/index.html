@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="last-modified" content="__LAST_DATE__" />
+
+    <title>Personal wiggly</title>
+    __FAVICON:🎨__
+    <style>
+      body {
+        margin: 0;
+        position: relative;
+      }
+
+      .container {
+        display: flex;
+      }
+
+      iframe {
+        display: block;
+        border: 0;
+        width: 90vw;
+        height: 90vw;
+      }
+
+      .controls {
+        position: fixed;
+        top: 50%;
+        right: 10px;
+        z-index: 2000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <iframe
+        src="./paint.html#main"
+        frameborder="0"
+        style="transform: rotate(0deg)"
+      ></iframe>
+      <div class="controls">
+        <button type="button" id="rotate">Rotate</button>
+      </div>
+    </div>
+
+    <script>
+      document.querySelector("#rotate").onclick = () => {
+        const frame = document.querySelector("iframe");
+        const rotate = frame.style.transform.replace(/[^0-9]/g, "");
+        const rotateInt = parseInt(rotate, 10);
+        const rotateNext = (rotateInt + 90) % 360;
+        frame.style.transform = `rotate(${rotateNext}deg)`;
+      };
+    </script>
+  </body>
+</html>
