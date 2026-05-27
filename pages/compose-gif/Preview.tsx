@@ -6,6 +6,7 @@ interface PreviewProps {
 }
 
 const FACTORS = [1, 2, 3, 4];
+const ROTATIONS = [0, 90, 180, 270];
 const isFirefoxWindows = /Windows.+Firefox/.test(navigator.userAgent);
 
 export function Preview(props: PreviewProps) {
@@ -73,6 +74,25 @@ export function Preview(props: PreviewProps) {
               />
               <label className="form-check-label" htmlFor={`renderSize${val}`}>
                 {val}x
+              </label>
+            </div>
+          ))}
+        </div>
+
+        <div className="pb-3">
+          <div className="form-label">Rotation:</div>
+          {ROTATIONS.map((val) => (
+            <div className="form-check form-check-inline" key={val}>
+              <input
+                className="form-check-input"
+                type="radio"
+                name="rotation"
+                id={`rotation${val}`}
+                defaultChecked={val === 0}
+                value={val}
+              />
+              <label className="form-check-label" htmlFor={`rotation${val}`}>
+                {val}deg
               </label>
             </div>
           ))}

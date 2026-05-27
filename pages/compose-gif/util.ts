@@ -58,6 +58,7 @@ export async function encodeMp4FromGifAssets(
   assets: (GifAsset & QueueFormFields)[],
   resizeFactor: number,
   useFfmpeg: boolean,
+  rotation: number,
 ): Promise<Blob> {
   const sourceW = assets[0].width;
   const sourceH = assets[0].height;
@@ -83,6 +84,7 @@ export async function encodeMp4FromGifAssets(
       codec: "avc",
       width: multipliedCanvas.width,
       height: multipliedCanvas.height,
+      rotation: rotation as any,
     },
     fastStart: "in-memory",
   });

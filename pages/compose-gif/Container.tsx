@@ -90,6 +90,7 @@ export function Container() {
 
     const durations = fd.getAll("duration") as string[];
     const renderSize = parseInt(fd.get("renderSize") as string, 10);
+    const rotation = parseInt(fd.get("rotation") as string, 10);
     const useFfmpeg = (fd.get("useFfmpeg") as string) === "yes";
 
     const resolved = queue.map((entry, idx) => ({
@@ -97,7 +98,12 @@ export function Container() {
       durationInS: Number.parseFloat(durations[idx]) ?? 0,
     }));
 
-    const blob = encodeMp4FromGifAssets(resolved, renderSize, useFfmpeg);
+    const blob = encodeMp4FromGifAssets(
+      resolved,
+      renderSize,
+      useFfmpeg,
+      rotation,
+    );
     return blob;
   };
 
