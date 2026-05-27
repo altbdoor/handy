@@ -90,14 +90,14 @@ export function Container() {
 
     const durations = fd.getAll("duration") as string[];
     const renderSize = parseInt(fd.get("renderSize") as string, 10);
-    const bgColor = fd.get("bgColor") as string;
+    const useFfmpeg = (fd.get("useFfmpeg") as string) === "yes";
 
     const resolved = queue.map((entry, idx) => ({
       ...pool.get(entry.poolId)!,
       durationInS: Number.parseFloat(durations[idx]) ?? 0,
     }));
 
-    const blob = encodeMp4FromGifAssets(resolved, renderSize, bgColor);
+    const blob = encodeMp4FromGifAssets(resolved, renderSize, useFfmpeg);
     return blob;
   };
 

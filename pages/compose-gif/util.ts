@@ -1,6 +1,27 @@
+import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { ArrayBufferTarget, Muxer } from "mp4-muxer";
 import { GifReader } from "omggif";
 import type { GifAsset, QueueFormFields } from "./model";
+
+let ffmpegInstance: FFmpeg | null = null;
+
+async function getFfmpeg() {
+  if (ffmpegInstance) {
+    return ffmpegInstance;
+  }
+
+  // 9MB gzipped, total 32MB
+  const cdnUrl = "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
+
+  const { FFmpeg } = await import("@ffmpeg/ffmpeg");
+  ffmpegInstance = new FFmpeg();
+
+  await ffmpegInstance.load({
+    coreURL: `${cdnUrl}/ffmpeg-core.js`,
+    wasmURL: `${cdnUrl}/ffmpeg-core.wasm`,
+  });
+  return ffmpegInstance;
+}
 
 export async function decodeGifFile(file: File): Promise<GifAsset> {
   const buffer = await file.arrayBuffer();
@@ -36,6 +57,7 @@ export async function decodeGifFile(file: File): Promise<GifAsset> {
 export async function encodeMp4FromGifAssets(
   assets: (GifAsset & QueueFormFields)[],
   resizeFactor: number,
+  useFfmpeg: boolean,
 ): Promise<Blob> {
   const sourceW = assets[0].width;
   const sourceH = assets[0].height;
@@ -72,14 +94,13 @@ export async function encodeMp4FromGifAssets(
 
   const encoderConfig: VideoEncoderConfig = {
     codec: `avc1.42E0${codecLevel}`,
-    width: multipliedCanvas.width,
-    height: multipliedCanvas.height,
+    width: targetW,
+    height: targetH,
     bitrate: 4_000_000,
   };
 
   const { supported } = await VideoEncoder.isConfigSupported(encoderConfig);
   if (!supported) {
-    // todo: handle this and inform user
     throw new Error("VideoEncoder config not supported");
   }
 
@@ -166,11 +187,48 @@ export async function encodeMp4FromGifAssets(
     }
 
     muxer.finalize();
-
-    // obtain blob
     const { buffer } = muxer.target;
-    const blob = new Blob([buffer], { type: "video/mp4" });
-    return blob;
+
+    if (!useFfmpeg) {
+      const blob = new Blob([buffer], { type: "video/mp4" });
+      return blob;
+    }
+
+    const ffmpeg = await getFfmpeg();
+    await ffmpeg.writeFile("input.mp4", new Uint8Array(buffer));
+
+    // visually lossless reencoding
+    const exitCode = await ffmpeg.exec([
+      "-fflags",
+      "+genpts",
+      "-i",
+      "input.mp4",
+      "-c:v",
+      "libx264",
+      "-preset",
+      "ultrafast",
+      "-crf",
+      "16",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "-an",
+      "output.mp4",
+    ]);
+
+    if (exitCode !== 0) {
+      throw new Error(`ffmpeg re-encode failed (exit ${exitCode})`);
+    }
+
+    const outputBytes = (await ffmpeg.readFile("output.mp4")) as any;
+    await Promise.all([
+      ffmpeg.deleteFile("input.mp4"),
+      ffmpeg.deleteFile("output.mp4"),
+    ]);
+
+    const ffBlob = new Blob([outputBytes], { type: "video/mp4" });
+    return ffBlob;
   } finally {
     encoder.close();
   }

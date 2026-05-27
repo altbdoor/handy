@@ -6,12 +6,14 @@ interface PreviewProps {
 }
 
 const FACTORS = [1, 2, 3, 4];
+const isFirefoxWindows = /Windows.+Firefox/.test(navigator.userAgent);
 
 export function Preview(props: PreviewProps) {
   const [src, setSrc] = useState<string | null>(null);
   const [size, setSize] = useState("");
   const [dim, setDim] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingTime, setLoadingTime] = useState("");
 
   useEffect(() => {
     return () => {
@@ -23,6 +25,8 @@ export function Preview(props: PreviewProps) {
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (evt) => {
     evt.preventDefault();
+    const startTime = Date.now();
+
     if (src) {
       URL.revokeObjectURL(src);
     }
@@ -33,19 +37,20 @@ export function Preview(props: PreviewProps) {
 
     const fd = new FormData(evt.currentTarget);
     setIsLoading(true);
-    let blob: Blob | undefined;
+
     try {
-      blob = await props.onCompose(fd);
+      const blob = await props.onCompose(fd);
+
+      if (blob) {
+        setSrc(URL.createObjectURL(blob));
+        setSize((blob.size / 1024 / 1024).toFixed(2));
+      }
     } catch (err) {
       console.error(err);
       alert(err);
     } finally {
       setIsLoading(false);
-    }
-
-    if (blob) {
-      setSrc(URL.createObjectURL(blob));
-      setSize((blob.size / 1024 / 1024).toFixed(2));
+      setLoadingTime(((Date.now() - startTime) / 1000).toFixed(2));
     }
   };
 
@@ -71,6 +76,36 @@ export function Preview(props: PreviewProps) {
               </label>
             </div>
           ))}
+        </div>
+
+        <div className="pb-3">
+          <div className="form-label">Lossless reencode with FFmpeg:</div>
+          <div className="form-check form-check-inline">
+            <input
+              className="form-check-input"
+              type="radio"
+              name="useFfmpeg"
+              defaultChecked={isFirefoxWindows}
+              id="useFfmpegYes"
+              value="yes"
+            />
+            <label className="form-check-label" htmlFor="useFfmpegYes">
+              Yes
+            </label>
+          </div>
+          <div className="form-check form-check-inline">
+            <input
+              className="form-check-input"
+              type="radio"
+              name="useFfmpeg"
+              defaultChecked={!isFirefoxWindows}
+              id="useFfmpegNo"
+              value="no"
+            />
+            <label className="form-check-label" htmlFor="useFfmpegNo">
+              No
+            </label>
+          </div>
         </div>
 
         <button
@@ -102,7 +137,7 @@ export function Preview(props: PreviewProps) {
           />
 
           <div className="py-2">
-            {dim}px @ {size}MB
+            {dim}px @ {size}MB, took {loadingTime}s
           </div>
           <a href={src} download="compiled.mp4" className="btn btn-info">
             <i className="bi bi-floppy"></i> Download video
