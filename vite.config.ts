@@ -1,6 +1,6 @@
 import react from "@vitejs/plugin-react";
 import { existsSync, readdirSync } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, join, relative, resolve } from "node:path";
 import { defineConfig } from "vite";
 
 const pagesDir = resolve(import.meta.dirname, "pages");
@@ -11,13 +11,21 @@ const pagesValidDirs = readdirSync(pagesDir)
   })
   .sort();
 
-const pagesInputs = pagesValidDirs.reduce(
-  (acc, val) => {
-    acc[`${val}/index`] = resolve(pagesDir, val, "index.html");
-    return acc;
-  },
-  {} as { [key: string]: string },
-);
+const pagesInputs = pagesValidDirs
+  .flatMap((val) => {
+    const dir = join(pagesDir, val);
+    return readdirSync(dir)
+      .filter((file) => file.endsWith(".html"))
+      .map((file) => join(val, file));
+  })
+  .reduce(
+    (acc, filePath) => {
+      const key = filePath.replace(/\.html$/, "");
+      acc[key] = join(pagesDir, filePath);
+      return acc;
+    },
+    {} as { [key: string]: string },
+  );
 
 function toEmojiCode(emoji: string) {
   return Array.from(emoji)
