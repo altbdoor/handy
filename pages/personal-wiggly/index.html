@@ -11,24 +11,36 @@
       body {
         margin: 0;
         position: relative;
+        background-color: #000;
       }
 
       .container {
         display: flex;
+        overflow: hidden;
       }
 
       iframe {
         display: block;
         border: 0;
-        width: 90vw;
-        height: 90vw;
+        width: 1030px;
+        height: 1030px;
+        transition: transform 0.2s ease;
+        margin: 0 auto;
       }
 
       .controls {
         position: fixed;
         top: 50%;
-        right: 10px;
+        right: 0.5rem;
         z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        transform: translateY(-50%);
+      }
+
+      .controls button {
+        padding: 1rem;
       }
     </style>
   </head>
@@ -41,18 +53,23 @@
         style="transform: rotate(0deg)"
       ></iframe>
       <div class="controls">
-        <button type="button" id="rotate">Rotate</button>
+        <button type="button" class="rotate" data-val="+90">Rotate R</button>
+        <button type="button" class="rotate" data-val="-90">Rotate L</button>
       </div>
     </div>
 
     <script>
-      document.querySelector("#rotate").onclick = () => {
-        const frame = document.querySelector("iframe");
-        const rotate = frame.style.transform.replace(/[^0-9]/g, "");
-        const rotateInt = parseInt(rotate, 10);
-        const rotateNext = (rotateInt + 90) % 360;
-        frame.style.transform = `rotate(${rotateNext}deg)`;
-      };
+      [...document.querySelectorAll(".rotate")].forEach((btn) => {
+        btn.onclick = () => {
+          const frame = document.querySelector("iframe");
+          const styleRotate = frame.style.transform.replace(/[^0-9]/g, "");
+          const styleRotateInt = parseInt(styleRotate, 10);
+
+          const nextRotate = parseInt(btn.getAttribute("data-val"), 10);
+          const rotateNext = styleRotateInt + nextRotate;
+          frame.style.transform = `rotate(${rotateNext}deg)`;
+        };
+      });
     </script>
   </body>
 </html>
