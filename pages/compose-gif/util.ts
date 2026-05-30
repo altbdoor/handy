@@ -1,7 +1,7 @@
 import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { ArrayBufferTarget, Muxer } from "mp4-muxer";
 import { GifReader } from "omggif";
-import type { GifAsset, QueueFormFields } from "./model";
+import type { QueueEntry, QueueEntryFields } from "./model";
 
 let ffmpegInstance: FFmpeg | null = null;
 
@@ -23,7 +23,10 @@ async function getFfmpeg() {
   return ffmpegInstance;
 }
 
-export async function decodeGifFile(file: File): Promise<GifAsset> {
+export async function decodeGifFile(
+  file: File,
+  canvas: OffscreenCanvas,
+): Promise<QueueEntry> {
   const buffer = await file.arrayBuffer();
   const reader = new GifReader(new Uint8Array(buffer));
 
@@ -43,19 +46,27 @@ export async function decodeGifFile(file: File): Promise<GifAsset> {
       };
     });
 
-  const data: GifAsset = {
-    id: crypto.randomUUID(),
-    filename: file.name,
-    frames,
-    width,
-    height,
-  };
+  const id = crypto.randomUUID();
+  const filename = file.name;
 
-  return data;
+  // generate preview image
+  const ctx = canvas.getContext("2d")!;
+  canvas.width = width;
+  canvas.height = height;
+  ctx.clearRect(0, 0, width, height);
+  const imageData = new ImageData(frames[0].data as any, width, height);
+  ctx.putImageData(imageData, 0, 0);
+  const blob = await canvas.convertToBlob({
+    quality: 0.75,
+    type: "image/jpeg",
+  });
+  const previewUrl = URL.createObjectURL(blob);
+
+  return { id, filename, previewUrl, frames, width, height };
 }
 
-export async function encodeMp4FromGifAssets(
-  assets: (GifAsset & QueueFormFields)[],
+export async function encodeIntoVideo(
+  assets: (QueueEntry & QueueEntryFields)[],
   resizeFactor: number,
   useFfmpeg: boolean,
   rotation: number,
@@ -234,29 +245,4 @@ export async function encodeMp4FromGifAssets(
   } finally {
     encoder.close();
   }
-}
-
-export async function getPreviewBlobsFromGifAssets(
-  canvas: OffscreenCanvas,
-  asset: GifAsset,
-) {
-  const ctx = canvas.getContext("2d")!;
-
-  canvas.width = asset.width;
-  canvas.height = asset.height;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const imageData = new ImageData(
-    asset.frames[0].data as any,
-    asset.width,
-    asset.height,
-  );
-  ctx.putImageData(imageData, 0, 0);
-
-  const blob = await canvas.convertToBlob({
-    quality: 0.75,
-    type: "image/jpeg",
-  });
-
-  return blob;
 }

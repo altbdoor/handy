@@ -1,7 +1,7 @@
 import { useEffect, useState, type SubmitEventHandler } from "react";
+import { FORM_ID } from "./constants";
 
 interface PreviewProps {
-  formId: string;
   onCompose: (fd: FormData) => Promise<Blob | undefined>;
 }
 
@@ -58,7 +58,7 @@ export function Preview(props: PreviewProps) {
 
   return (
     <div>
-      <form id={props.formId} onSubmit={handleSubmit}>
+      <form id={FORM_ID} onSubmit={handleSubmit}>
         <hr />
 
         <div className="pb-3">

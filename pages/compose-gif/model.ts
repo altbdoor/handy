@@ -1,22 +1,17 @@
-export interface GifAsset {
+export interface QueueEntry {
   id: string;
   filename: string;
+  previewUrl: string;
   frames: GifFrame[];
   width: number;
   height: number;
 }
 
-export interface QueueEntry {
-  queueId: string;
-  poolId: string;
-  filename: string;
-}
-
-export interface QueueFormFields {
+export interface QueueEntryFields {
   durationInS: number;
 }
 
-export interface GifFrame {
+interface GifFrame {
   delayInMs: number;
   data: Uint8ClampedArray;
 }

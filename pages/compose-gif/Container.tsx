@@ -1,22 +1,18 @@
-import { useState, type ChangeEventHandler } from "react";
-import { useImgCache } from "./hooks";
-import { PoolList } from "./PoolList";
+import { useState, useEffect, useRef, type ChangeEventHandler } from "react";
 import { QueueList } from "./QueueList";
-import {
-  decodeGifFile,
-  encodeMp4FromGifAssets,
-  getPreviewBlobsFromGifAssets,
-} from "./util";
-import { type GifAsset, type QueueEntry } from "./model";
+import { decodeGifFile, encodeIntoVideo } from "./util";
+import type { QueueEntry } from "./model";
 import { Preview } from "./Preview";
 
-const FORM_ID = "compose-form";
-
 export function Container() {
-  const [pool, setPool] = useState<Map<string, GifAsset>>(new Map());
   const [queue, setQueue] = useState<QueueEntry[]>([]);
+  const previewUrls = useRef<string[]>([]);
 
-  const { addCache, removeCache } = useImgCache();
+  useEffect(() => {
+    return () => {
+      previewUrls.current.forEach(URL.revokeObjectURL);
+    };
+  }, []);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = async (evt) => {
     const files = Array.from(evt.currentTarget.files ?? []);
@@ -24,62 +20,42 @@ export function Container() {
       return;
     }
 
-    const frameData = new Map<string, GifAsset>();
-    const previewCanvas = new OffscreenCanvas(1, 1);
+    const canvas = new OffscreenCanvas(1, 1);
+    const newEntries: typeof queue = [];
 
     for (const file of files) {
-      const asset = await decodeGifFile(file);
-      frameData.set(asset.id, asset);
-
-      const blob = await getPreviewBlobsFromGifAssets(previewCanvas, asset);
-      const blobUrl = URL.createObjectURL(blob);
-      addCache(asset.id, blobUrl);
+      const entry = await decodeGifFile(file, canvas);
+      previewUrls.current.push(entry.previewUrl);
+      newEntries.push(entry);
     }
 
-    setPool((prev) => new Map([...prev, ...frameData]));
+    setQueue((prev) => [...prev, ...newEntries]);
   };
 
-  const addToQueue = (asset: GifAsset) => {
-    const queueId = `${asset.id}__${crypto.randomUUID()}`;
-    setQueue((prev) => [
-      ...prev,
-      {
-        queueId,
-        poolId: asset.id,
-        filename: asset.filename,
-      },
-    ]);
+  const removeFromQueue = (removeId: string, previewUrl: string) => {
+    URL.revokeObjectURL(previewUrl);
+    previewUrls.current = previewUrls.current.filter(
+      (url) => url !== previewUrl,
+    );
+    setQueue((prev) => prev.filter((item) => item.id !== removeId));
   };
 
-  const removeFromPool = (removeId: string) => {
-    setPool((prev) => {
-      const next = new Map(prev);
-      next.delete(removeId);
-      return next;
-    });
-    setQueue((prev) => prev.filter((entry) => entry.poolId !== removeId));
-    removeCache(removeId);
-  };
-
-  const removeFromQueue = (removeQueueId: string) => {
-    setQueue((prev) => prev.filter((entry) => entry.queueId !== removeQueueId));
+  const clearQueue = () => {
+    previewUrls.current.forEach(URL.revokeObjectURL);
+    previewUrls.current = [];
+    setQueue([]);
   };
 
   const moveQueue = (from: number, to: number) => {
-    setQueue((prev) => {
-      if (to < 0 || to >= prev.length) {
-        return prev;
-      }
+    if (to < 0 || from === to) {
+      return;
+    }
 
-      return prev.map((item, idx) => {
-        if (idx === from) {
-          return prev[to];
-        }
-        if (idx === to) {
-          return prev[from];
-        }
-        return item;
-      });
+    setQueue((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
     });
   };
 
@@ -94,31 +70,26 @@ export function Container() {
     const useFfmpeg = (fd.get("useFfmpeg") as string) === "yes";
 
     const resolved = queue.map((entry, idx) => ({
-      ...pool.get(entry.poolId)!,
+      ...entry,
       durationInS: Number.parseFloat(durations[idx]) ?? 0,
     }));
 
-    const blob = encodeMp4FromGifAssets(
-      resolved,
-      renderSize,
-      useFfmpeg,
-      rotation,
-    );
+    const blob = encodeIntoVideo(resolved, renderSize, useFfmpeg, rotation);
     return blob;
   };
 
   return (
     <div className="container position-relative">
       <div className="row">
-        <div className="col-3 py-3 vh-100 position-sticky top-0">
-          <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
-            <div className="d-flex align-items-center justify-content-between pb-2">
+        <div className="col-4 py-3 vh-100 position-sticky top-0">
+          <div className="h-100 bg-secondary text-white overflow-y-scroll p-2 overflow-anchor-none">
+            <div className="d-flex align-items-center gap-1 pb-2">
               <h5 className="m-0">
-                <i className="bi bi-archive"></i> Pool
+                <i className="bi bi-layers"></i> Queue
               </h5>
 
-              <label className="btn btn-primary btn-sm">
-                Add files into Pool
+              <label className="btn btn-primary btn-sm ms-auto">
+                Upload GIFs
                 <input
                   type="file"
                   accept="image/gif"
@@ -127,28 +98,13 @@ export function Container() {
                   className="d-none"
                 />
               </label>
-            </div>
-
-            <PoolList
-              items={[...pool.values()]}
-              remove={removeFromPool}
-              addToQueue={addToQueue}
-            />
-          </div>
-        </div>
-        <div className="col-3 py-3 vh-100 position-sticky top-0">
-          <div className="h-100 bg-secondary text-white overflow-y-scroll p-2">
-            <div className="d-flex align-items-center justify-content-between pb-2">
-              <h5 className="m-0">
-                <i className="bi bi-layers"></i> Queue
-              </h5>
 
               <button
                 type="button"
                 className="btn btn-outline-danger btn-sm"
-                onClick={() => setQueue([])}
+                onClick={clearQueue}
               >
-                Clear queue
+                Clear
               </button>
             </div>
 
@@ -156,7 +112,6 @@ export function Container() {
               items={queue}
               remove={removeFromQueue}
               move={moveQueue}
-              formId={FORM_ID}
             />
           </div>
         </div>
@@ -165,7 +120,7 @@ export function Container() {
             <i className="bi bi-file-play"></i> Preview
           </h5>
 
-          <Preview formId={FORM_ID} onCompose={compose} />
+          <Preview onCompose={compose} />
         </div>
       </div>
     </div>

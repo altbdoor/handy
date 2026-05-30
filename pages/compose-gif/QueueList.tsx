@@ -1,11 +1,10 @@
 import {
   DragDropContext,
-  Droppable,
   Draggable,
-  type DraggableProvided,
+  Droppable,
   type OnDragEndResponder,
 } from "@hello-pangea/dnd";
-import { useImgCache } from "./hooks";
+import { FORM_ID } from "./constants";
 import type { QueueEntry } from "./model";
 
 interface QueueItemProps {
@@ -13,9 +12,8 @@ interface QueueItemProps {
   idx: number;
   isFirst: boolean;
   isLast: boolean;
-  formId: string;
   move: (from: number, to: number) => void;
-  remove: (id: string) => void;
+  remove: (id: string, previewUrl: string) => void;
 }
 
 function QueueItem({
@@ -23,12 +21,9 @@ function QueueItem({
   idx,
   isFirst,
   isLast,
-  formId,
   move,
   remove,
 }: QueueItemProps) {
-  const { getCache } = useImgCache();
-
   return (
     <div className="rounded bg-dark p-2">
       <div className="d-flex gap-2">
@@ -52,7 +47,7 @@ function QueueItem({
         </div>
         <div>
           <img
-            src={getCache(entry.poolId)}
+            src={entry.previewUrl}
             alt={entry.filename}
             width={64}
             height={64}
@@ -66,7 +61,7 @@ function QueueItem({
             <button
               type="button"
               className="btn btn-sm btn-outline-danger"
-              onClick={() => remove(entry.queueId)}
+              onClick={() => remove(entry.id, entry.previewUrl)}
             >
               <i className="bi bi-trash-fill"></i>
             </button>
@@ -76,7 +71,7 @@ function QueueItem({
                 className="form-control text-end"
                 type="number"
                 name="duration"
-                form={formId}
+                form={FORM_ID}
                 min={0}
                 max={600}
                 step="any"
@@ -92,9 +87,8 @@ function QueueItem({
 }
 
 interface QueueListProps {
-  formId: string;
   items: QueueEntry[];
-  remove: (id: string) => void;
+  remove: (id: string, previewUrl: string) => void;
   move: (from: number, to: number) => void;
 }
 
@@ -102,8 +96,8 @@ export function QueueList({ items, ...props }: QueueListProps) {
   if (items.length === 0) {
     return (
       <div className="p-3 text-center">
-        <i className="bi bi-info-circle"></i> No files in queue. Add files in
-        from the pool.
+        <i className="bi bi-info-circle"></i> No files in queue. Add files with
+        the upload button above.
       </div>
     );
   }
@@ -128,24 +122,21 @@ export function QueueList({ items, ...props }: QueueListProps) {
             className="d-flex flex-column"
           >
             {items.map((entry, idx) => (
-              <Draggable
-                key={entry.queueId}
-                draggableId={entry.queueId}
-                index={idx}
-              >
-                {(dragProv) => (
+              <Draggable key={entry.id} draggableId={entry.id} index={idx}>
+                {(dragProv, snapshot) => (
                   <div
                     ref={dragProv.innerRef}
                     {...dragProv.draggableProps}
                     {...dragProv.dragHandleProps}
-                    className="pb-1"
+                    className={
+                      "pb-1 " + (snapshot.isDragging ? "opacity-50" : "")
+                    }
                   >
                     <QueueItem
                       entry={entry}
                       idx={idx}
                       isFirst={idx === 0}
                       isLast={idx === items.length - 1}
-                      formId={props.formId}
                       move={props.move}
                       remove={props.remove}
                     />
