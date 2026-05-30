@@ -7,12 +7,13 @@ interface PreviewProps {
 
 const FACTORS = [1, 2, 3, 4];
 const ROTATIONS = [0, 90, 180, 270];
-const isFirefoxWindows = /Windows.+Firefox/.test(navigator.userAgent);
 
 export function Preview(props: PreviewProps) {
   const [src, setSrc] = useState<string | null>(null);
   const [size, setSize] = useState("");
   const [dim, setDim] = useState("");
+  const [duration, setDuration] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTime, setLoadingTime] = useState("");
 
@@ -69,7 +70,7 @@ export function Preview(props: PreviewProps) {
                 type="radio"
                 name="renderSize"
                 id={`renderSize${val}`}
-                defaultChecked={val === 2}
+                defaultChecked={val === 1}
                 value={val}
               />
               <label className="form-check-label" htmlFor={`renderSize${val}`}>
@@ -105,7 +106,7 @@ export function Preview(props: PreviewProps) {
               className="form-check-input"
               type="radio"
               name="useFfmpeg"
-              defaultChecked={isFirefoxWindows}
+              defaultChecked={false}
               id="useFfmpegYes"
               value="yes"
             />
@@ -118,7 +119,7 @@ export function Preview(props: PreviewProps) {
               className="form-check-input"
               type="radio"
               name="useFfmpeg"
-              defaultChecked={!isFirefoxWindows}
+              defaultChecked={true}
               id="useFfmpegNo"
               value="no"
             />
@@ -128,17 +129,26 @@ export function Preview(props: PreviewProps) {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary w-100"
-          disabled={isLoading}
-        >
-          {isLoading ? "Loading..." : "Compose video"}
-        </button>
+        <div className="d-flex gap-2">
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={isLoading}
+          >
+            {isLoading ? "Loading..." : "Compose video"}
+          </button>
+          <button
+            type="reset"
+            className="btn btn-secondary"
+            disabled={isLoading}
+          >
+            Reset
+          </button>
+        </div>
       </form>
 
       {src ? (
-        <div className="text-center">
+        <div className="text-center pt-2 d-flex flex-column gap-2 align-items-center">
           <video
             key={src}
             src={src}
@@ -149,15 +159,21 @@ export function Preview(props: PreviewProps) {
             playsInline
             disablePictureInPicture
             controlsList="nofullscreen noremoteplayback"
-            className="img-fluid pt-2"
+            className="img-fluid"
             onLoadedData={(evt) => {
               const { videoWidth, videoHeight } = evt.currentTarget;
               setDim(`${videoWidth}×${videoHeight}`);
+              setDuration(evt.currentTarget.duration.toFixed(2));
             }}
           />
 
-          <div className="py-2">
-            {dim}px @ {size}MB, took {loadingTime}s
+          <div className="d-flex gap-2 justify-content-center">
+            <span className="badge text-bg-primary">{dim}px</span>
+            <span className="badge text-bg-primary">{size}MB</span>
+            <span className="badge text-bg-primary">{duration}s</span>
+            <span className="badge text-bg-secondary">
+              <i className="bi bi-wrench"></i> {loadingTime}s
+            </span>
           </div>
           <a href={src} download="compiled.mp4" className="btn btn-info">
             <i className="bi bi-floppy"></i> Download video
