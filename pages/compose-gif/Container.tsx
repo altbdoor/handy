@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type ChangeEventHandler } from "react";
 import { QueueList } from "./QueueList";
 import { decodeGifFile, encodeIntoVideo } from "./util";
-import type { QueueEntry } from "./model";
+import type { ComposeOptions, QueueEntry } from "./model";
 import { Preview } from "./Preview";
 
 export function Container() {
@@ -59,22 +59,22 @@ export function Container() {
     });
   };
 
-  const compose = async (fd: FormData) => {
+  const compose = async (opts: ComposeOptions) => {
     if (queue.length === 0) {
       return;
     }
 
-    const durations = fd.getAll("duration") as string[];
-    const renderSize = parseInt(fd.get("renderSize") as string, 10);
-    const rotation = parseInt(fd.get("rotation") as string, 10);
-    const useFfmpeg = (fd.get("useFfmpeg") as string) === "yes";
-
     const resolved = queue.map((entry, idx) => ({
       ...entry,
-      durationInS: Number.parseFloat(durations[idx]) ?? 0,
+      durationInS: opts.durations[idx] ?? 0,
     }));
 
-    const blob = encodeIntoVideo(resolved, renderSize, useFfmpeg, rotation);
+    const blob = encodeIntoVideo(
+      resolved,
+      opts.renderSize,
+      opts.useFfmpeg,
+      opts.rotation,
+    );
     return blob;
   };
 

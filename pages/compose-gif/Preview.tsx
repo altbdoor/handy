@@ -1,8 +1,9 @@
 import { useEffect, useState, type SubmitEventHandler } from "react";
 import { FORM_ID } from "./constants";
+import type { ComposeOptions } from "./model";
 
 interface PreviewProps {
-  onCompose: (fd: FormData) => Promise<Blob | undefined>;
+  onCompose: (opts: ComposeOptions) => Promise<Blob | undefined>;
 }
 
 const FACTORS = [1, 2, 3, 4];
@@ -12,7 +13,7 @@ export function Preview(props: PreviewProps) {
   const [src, setSrc] = useState<string | null>(null);
   const [size, setSize] = useState("");
   const [dim, setDim] = useState("");
-  const [duration, setDuration] = useState("");
+  const [duration, setDuration] = useState(0);
 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTime, setLoadingTime] = useState("");
@@ -38,10 +39,16 @@ export function Preview(props: PreviewProps) {
     setDim("");
 
     const fd = new FormData(evt.currentTarget);
+    const opts: ComposeOptions = {
+      durations: (fd.getAll("duration") as string[]).map(Number.parseFloat),
+      renderSize: parseInt(fd.get("renderSize") as string, 10),
+      rotation: parseInt(fd.get("rotation") as string, 10),
+      useFfmpeg: (fd.get("useFfmpeg") as string) === "yes",
+    };
     setIsLoading(true);
 
     try {
-      const blob = await props.onCompose(fd);
+      const blob = await props.onCompose(opts);
 
       if (blob) {
         setSrc(URL.createObjectURL(blob));
@@ -163,7 +170,7 @@ export function Preview(props: PreviewProps) {
             onLoadedData={(evt) => {
               const { videoWidth, videoHeight } = evt.currentTarget;
               setDim(`${videoWidth}×${videoHeight}`);
-              setDuration(evt.currentTarget.duration.toFixed(2));
+              setDuration(evt.currentTarget.duration);
             }}
           />
 
