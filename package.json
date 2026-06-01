@@ -5,32 +5,27 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc --build && vite build",
     "preview": "vite preview",
     "pretty": "prettier --write --ignore-unknown --log-level warn \"**/*\""
   },
   "devDependencies": {
     "@types/alpinejs": "^3.13.11",
-    "@types/node": "^24.12.2",
-    "@types/omggif": "^1.0.5",
+    "@types/node": "^24.12.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react": "^6.0.2",
     "prettier": "^3.8.3",
     "typescript": "~6.0.3",
-    "vite": "^8.0.10"
+    "vite": "^8.0.13"
   },
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.15",
-    "@hello-pangea/dnd": "^18.0.1",
     "alpinejs": "^3.15.12",
     "gtfs-realtime-bindings": "^1.1.1",
     "maplibre-gl": "^5.23.0",
-    "mp4-muxer": "^5.2.2",
     "normalize.css": "^8.0.1",
-    "omggif": "^1.0.10",
-    "preact": "^10.29.1",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "preact": "^10.29.2",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   }
 }
