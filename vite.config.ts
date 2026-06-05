@@ -121,10 +121,7 @@ export default defineConfig({
             `;
           });
 
-          patchedHtml = patchedHtml.replace(
-            "__PAGES__",
-            `<ul>${pagesLinks.join("")}</ul>`,
-          );
+          patchedHtml = patchedHtml.replace("__PAGES__", `<ul>${pagesLinks.join("")}</ul>`);
         }
 
         return patchedHtml;

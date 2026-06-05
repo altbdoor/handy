@@ -1,0 +1,4 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": ["pages/personal-wiggly/paint.html", "pages/personal-wiggly/WigglyPaint.html"]
+}

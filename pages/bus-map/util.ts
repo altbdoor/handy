@@ -20,9 +20,7 @@ export async function getBusLocation(): Promise<BusLocation[]> {
   }
 
   const protoData = await protoRes.arrayBuffer();
-  const protoFeed = Gtfs.transit_realtime.FeedMessage.decode(
-    new Uint8Array(protoData),
-  );
+  const protoFeed = Gtfs.transit_realtime.FeedMessage.decode(new Uint8Array(protoData));
 
   const routeIds = ["T114", "T152"];
   const busRoutes = protoFeed.entity.filter((ent) =>

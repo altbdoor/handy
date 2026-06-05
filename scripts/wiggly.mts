@@ -11,14 +11,8 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 // process.chdir(projectRoot)
-const wigglySourceFile = path.join(
-  projectRoot,
-  "pages/personal-wiggly/WigglyPaint.html",
-);
-const wigglyEditedFile = path.join(
-  projectRoot,
-  "pages/personal-wiggly/paint.html",
-);
+const wigglySourceFile = path.join(projectRoot, "pages/personal-wiggly/WigglyPaint.html");
+const wigglyEditedFile = path.join(projectRoot, "pages/personal-wiggly/paint.html");
 
 const rl = createInterface({ input: createReadStream(wigglySourceFile) });
 const ws = createWriteStream(wigglyEditedFile);

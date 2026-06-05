@@ -51,9 +51,7 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
   });
 
   // center marker
-  new maplibregl.Marker({ color: "#dc3545", scale: 0.8 })
-    .setLngLat(center)
-    .addTo(map);
+  new maplibregl.Marker({ color: "#dc3545", scale: 0.8 }).setLngLat(center).addTo(map);
 
   // marker caching
   type BusMarkerModel = {
@@ -99,44 +97,36 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
 
     const seenIds = new Set<string>();
 
-    busData.forEach(
-      ({ routeId, plate, bearing, latitude, longitude, speed }) => {
-        const position: [number, number] = [longitude, latitude];
+    busData.forEach(({ routeId, plate, bearing, latitude, longitude, speed }) => {
+      const position: [number, number] = [longitude, latitude];
 
-        const markerId = `${routeId}-${plate}`;
-        seenIds.add(markerId);
+      const markerId = `${routeId}-${plate}`;
+      seenIds.add(markerId);
 
-        const existingMarker = busMarkers.get(markerId);
-        if (existingMarker) {
-          existingMarker.marker.setLngLat(position);
-          existingMarker.iconElem.classList.toggle(
-            "render-map-icon--driving",
-            speed > 0,
-          );
-          existingMarker.iconElem.style.setProperty(
-            "--rotate",
-            `${bearing}deg`,
-          );
-          return;
-        }
+      const existingMarker = busMarkers.get(markerId);
+      if (existingMarker) {
+        existingMarker.marker.setLngLat(position);
+        existingMarker.iconElem.classList.toggle("render-map-icon--driving", speed > 0);
+        existingMarker.iconElem.style.setProperty("--rotate", `${bearing}deg`);
+        return;
+      }
 
-        const iconElem = document.createElement("div");
-        iconElem.className = "render-map-icon";
-        iconElem.classList.toggle("render-map-icon--driving", speed > 0);
-        iconElem.style.setProperty("--rotate", `${bearing}deg`);
-        iconElem.style.setProperty("--plate", `"${plate}"`);
-        iconElem.innerHTML = getBusSvg();
+      const iconElem = document.createElement("div");
+      iconElem.className = "render-map-icon";
+      iconElem.classList.toggle("render-map-icon--driving", speed > 0);
+      iconElem.style.setProperty("--rotate", `${bearing}deg`);
+      iconElem.style.setProperty("--plate", `"${plate}"`);
+      iconElem.innerHTML = getBusSvg();
 
-        const marker = new maplibregl.Marker({
-          element: iconElem,
-          anchor: "center",
-        })
-          .setLngLat(position)
-          .addTo(map);
+      const marker = new maplibregl.Marker({
+        element: iconElem,
+        anchor: "center",
+      })
+        .setLngLat(position)
+        .addTo(map);
 
-        busMarkers.set(markerId, { marker, iconElem });
-      },
-    );
+      busMarkers.set(markerId, { marker, iconElem });
+    });
 
     busMarkers.forEach((val, markerId) => {
       if (!seenIds.has(markerId)) {
@@ -147,8 +137,7 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
 
     const now = Date.now();
     mapTime.dataset.lastUpdateAt = String(now);
-    mapTime.textContent =
-      "Last updated: " + new Date(now).toLocaleTimeString().toUpperCase();
+    mapTime.textContent = "Last updated: " + new Date(now).toLocaleTimeString().toUpperCase();
     updateTimeProgress();
   };
 

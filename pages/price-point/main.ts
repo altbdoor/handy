@@ -86,12 +86,7 @@ function root() {
       this.appendPriceList();
     },
 
-    handleNumeric(
-      evt: Event,
-      id: string,
-      mode: "price" | "unit",
-      hasDecimals: boolean,
-    ) {
+    handleNumeric(evt: Event, id: string, mode: "price" | "unit", hasDecimals: boolean) {
       const modeDisplay = mode === "price" ? "priceDisplay" : "unitDisplay";
       const divisor = hasDecimals ? 100 : 1;
 
@@ -118,9 +113,7 @@ function root() {
         const nextData: PriceItem = {
           ...data,
           [mode]: value,
-          [modeDisplay]: (hasDecimals ? decimalFormatter : intFormatter).format(
-            value,
-          ),
+          [modeDisplay]: (hasDecimals ? decimalFormatter : intFormatter).format(value),
           pricePerUnit: 0,
         };
 

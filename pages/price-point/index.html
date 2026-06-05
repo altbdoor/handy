@@ -22,9 +22,7 @@
         </thead>
         <tbody>
           <template x-for="data in priceList" :key="data.id">
-            <tr
-              :style="{ background: data.id === lowestId ? 'lightgreen' : '' }"
-            >
+            <tr :style="{ background: data.id === lowestId ? 'lightgreen' : '' }">
               <td>
                 <button
                   class="remove"

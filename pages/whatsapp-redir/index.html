@@ -7,10 +7,7 @@
 
     <title>WhatsApp redir</title>
     __FAVICON:☎️__
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css" />
   </head>
 
   <body>
@@ -24,41 +21,26 @@
 
       <p>
         <label for="form__clean">Cleaned phone number:</label>
-        <input
-          id="form__clean"
-          name="phone"
-          type="text"
-          readonly
-          tabindex="-1"
-        />
+        <input id="form__clean" name="phone" type="text" readonly tabindex="-1" />
       </p>
 
       <p>
-        <button formaction="https://web.whatsapp.com/send" type="submit">
-          Open in Web
-        </button>
-        <button formaction="https://api.whatsapp.com/send" type="submit">
-          Open in App
-        </button>
+        <button formaction="https://web.whatsapp.com/send" type="submit">Open in Web</button>
+        <button formaction="https://api.whatsapp.com/send" type="submit">Open in App</button>
       </p>
     </form>
     <hr />
     <p>
       <small>
         Ported from
-        <a href="https://github.com/altbdoor/whatsapp-redir"
-          >original WhatsApp redir</a
-        >. Last modified
-        <time datetime="2021-10-27T17:46:53Z">27 Oct 2021</time>.
+        <a href="https://github.com/altbdoor/whatsapp-redir">original WhatsApp redir</a>. Last
+        modified <time datetime="2021-10-27T17:46:53Z">27 Oct 2021</time>.
       </small>
     </p>
 
     <script>
       document.getElementById("form__phone").oninput = (evt) => {
-        document.getElementById("form__clean").value = evt.target.value.replace(
-          /[^0-9]/g,
-          "",
-        );
+        document.getElementById("form__clean").value = evt.target.value.replace(/[^0-9]/g, "");
       };
     </script>
   </body>
