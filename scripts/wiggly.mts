@@ -20,9 +20,6 @@ const ws = createWriteStream(wigglyEditedFile);
 let foundSounds = false;
 let foundNextBlockAfterSounds = false;
 
-let foundShake = false;
-let foundNextBlockAfterShake = false;
-
 for await (const line of rl) {
   const lineTrim = line.trimEnd();
 
@@ -48,7 +45,7 @@ for await (const line of rl) {
 
   // nuke history
   if (lineTrim.startsWith("history:")) {
-    ws.write(line.replace(/\"\%\%.+?\]/, "]") + "\n");
+    ws.write(line.replace(/"%%.+?\]/, "]") + "\n");
     continue;
   }
 
