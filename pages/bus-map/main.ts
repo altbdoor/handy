@@ -17,8 +17,8 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
   const map = new maplibregl.Map({
     container: mapElem,
     style: "https://tiles.openfreemap.org/styles/bright",
-    center,
-    zoom: 15,
+    center: [center[0], center[1] + 0.005],
+    zoom: 14,
     dragRotate: false,
     touchPitch: false,
     attributionControl: false,
