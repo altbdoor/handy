@@ -38,13 +38,6 @@ function toEmojiCode(emoji: string) {
 
 export default defineConfig({
   base: process.env.VITE_BASE ?? "/",
-  resolve: {
-    alias: {
-      "react-compat": "preact/compat",
-      "react-compat-dom": "preact/compat",
-      "react-compat/jsx-runtime": "preact/jsx-runtime",
-    },
-  },
   build: {
     reportCompressedSize: false,
     emptyOutDir: true,
@@ -61,10 +54,6 @@ export default defineConfig({
               test: /node_modules\/react(-dom)?\//,
             },
             {
-              name: "preact",
-              test: /node_modules\/preact\//,
-            },
-            {
               name: "alpinejs",
               test: /node_modules\/alpinejs\//,
             },
@@ -75,19 +64,6 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    {
-      name: "react-compat-jsx-pragma",
-      enforce: "pre",
-      transform: {
-        filter: {
-          code: { include: '"react-compat"' },
-          id: { include: /\.tsx$/ },
-        },
-        handler(code) {
-          return "/** @jsxImportSource react-compat */\n" + code;
-        },
-      },
-    },
     {
       name: "list-sites-in-homepage",
       transformIndexHtml: async (html) => {
