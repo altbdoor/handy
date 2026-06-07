@@ -1,6 +1,6 @@
 import react from "@vitejs/plugin-react";
 import { existsSync, readdirSync } from "node:fs";
-import { basename, join, relative, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { defineConfig } from "vite";
 
 const pagesDir = resolve(import.meta.dirname, "pages");
@@ -89,7 +89,7 @@ export default defineConfig({
     },
     {
       name: "list-sites-in-homepage",
-      transformIndexHtml: async (html, _ctx) => {
+      transformIndexHtml: async (html) => {
         let patchedHtml = html;
 
         // convert emoji favicons
