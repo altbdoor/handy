@@ -1,6 +1,7 @@
-import react from "@vitejs/plugin-react";
 import { existsSync, readdirSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
+
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 const pagesDir = resolve(import.meta.dirname, "pages");

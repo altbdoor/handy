@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+
 import "./style.css";
 
 interface PriceItem {
