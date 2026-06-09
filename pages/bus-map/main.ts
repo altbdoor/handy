@@ -13,11 +13,12 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
 
   // https://maps.app.goo.gl/8DLumLtUiaHeW1Kk6
   const center: [number, number] = [101.6417106035067, 3.2199094390155625];
+  const mapCenter: [number, number] = [center[0], center[1] + 0.005];
 
   const map = new maplibregl.Map({
     container: mapElem,
     style: "https://tiles.openfreemap.org/styles/bright",
-    center: [center[0], center[1] + 0.005],
+    center: mapCenter,
     zoom: 14,
     dragRotate: false,
     touchPitch: false,
@@ -177,7 +178,7 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
     }
 
     if (action === "recenter") {
-      map.easeTo({ center, zoom: 15 });
+      map.easeTo({ center: mapCenter, zoom: 14 });
     }
   });
 })();
