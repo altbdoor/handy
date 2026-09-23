@@ -1116,10 +1116,11 @@ end
 size:[57,35]
 margin:[0,0,0,0]
 description:"save a wigglypaint canvas temporarily, and restore it later!"
+version:1
 image:"%%IMG3ADkAIwZAQGBILBqPyKRyKQQ5n9CodEqtWofWrHZbxXK/4G4gTC6DvOa0Fq1uT9nuuBMud9Pr6jverN+T+35ggIFcg4RrY4dphopijXyJj2GMklGUlU+XmGeRm4iehUuio6SjdZ1tXqqrmYmub6uusnO0nGe1r7evube4vb+7uGOoucNQvMe0kcvKwnPMnKzR0NHPtdO9s5m+v7rXyd7XwdnG2b7j1OPAzeTW3NrI27qsu8P2p6dCpfv8SgBB"
 script:"wigglyStash.0p"
 {widgets}
-preview:{"type":"canvas","size":[53,21],"pos":[2,2],"volatile":1,"scale":1}
+preview:{"type":"canvas","size":[53,21],"pos":[2,2],"locked":1,"volatile":1,"scale":1}
 stashbutton:{"type":"button","size":[29,13],"pos":[-1,23],"script":"wigglyStash.1p","style":"invisible"}
 recallbutton:{"type":"button","size":[29,13],"pos":[29,23],"script":"wigglyStash.2p","style":"invisible"}
 data:{"type":"field","size":[100,20],"pos":[105,-7],"locked":1,"show":"none"}
@@ -1171,7 +1172,7 @@ body{touch-action:none;overflow:hidden;}
 </style>
 <script>
 
-VERSION="1.66"
+VERSION="1.70"
 
 DANGEROUS=0
 
@@ -1324,7 +1325,7 @@ flove=x=>lin(x)||lis(x)?fjson(x): lil(x)?`[${x.v.map(flove).join(',')}]`:
 pjson=(y,h,n)=>{
 	const si=h, hn=_=>m&&y[h]&&(n?h-si<n:1), hnn=x=>m&&h+x<=y.length&&(n?h+x-si<n:1)
 	const jd=_=>{while(hn()&&/[0-9]/.test(y[h]))h++}, jm=x=>hn()&&y[h]==x?(h++,1):0, iw=_=>/[ \n]/.test(y[h]), ws=_=>{while(hn()&&iw())h++}
-	const esc=e=>e=='n'?'\n': /[\\/"']/.test(e)?e: e=='u'&&hnn(4)?String.fromCharCode(parseInt(y.slice(h,h+=4),16)):' '
+	const esc=e=>e=='n'?'\n': /[\\/"']/.test(e)?e: (e=='u'||e=='U')&&hnn(4)?String.fromCharCode(parseInt(y.slice(h,h+=4),16)):' '
 	let f=1, m=1, rec=_=>{
 		const t={null:NIL,false:ZERO,true:ONE};for(let k in t)if(hnn(k.length)&&y.slice(h,h+k.length)==k)return h+=k.length,t[k]
 		if(jm('[')){const r=lml([]);while(f&&hn()){ws();if(jm(']'))break;r.v.push(rec()),ws(),jm(',')}return r}
@@ -1498,7 +1499,7 @@ dyad={
 			}
 			else if(t=='e'||t=='p'){
 				const [dy,dm,dd,dh,dmi,ds,dl,dma]=ll(dyad.parse(ISODATE,lms(y.slice(h)))), l=ln(dl), d=new Date(y.slice(h,h+l))
-				if(l&&ln(dma)){h+=l}else{m=0}; v=t=='e'?lmn(m?0|(d.getTime()/1000):0):lmd(PARTS,[dy,dm,dd,dh,dmi,ds].map(x=>lmn(ln(x))))
+				if(l&&ln(dma)){h+=l}else{m=0}; v=t=='e'?lmn(m?Math.floor(d.getTime()/1000):0):lmd(PARTS,[dy,dm,dd,dh,dmi,ds].map(x=>lmn(ln(x))))
 			}else{m=0}while(n&&y[h]&&h-si<n)h++,m=0;
 			if(!sk&&v){
 				if     (!im&&'%mnz'.indexOf(t)==-1)v=NIL              // some previous pattern failed
@@ -1610,21 +1611,29 @@ n_eval=([x,y,extend])=>{
 		issue(env_bind(extend&&lb(extend)?getev():null,yy.k.map(ls),lml(yy.v)),prog)
 	}catch(e){dset(r,lms('error'),lms(e.x)),dset(r,lms('errorpos'),lml([lmn(e.r),lmn(e.c)]))};return r
 }
+orderby=(tab,o,order_dir)=>{
+	const lex_list=(x,y,a,ix)=>{
+		if(x.length<ix&&y.length<ix)return 0;const xv=x[ix]||NIL,yv=y[ix]||NIL
+		return lex_less(xv,yv)?a: lex_more(xv,yv)?!a: lex_list(x,y,a,ix+1)
+	}
+	const lex_less=(a,b)=>lil(a)&&lil(b)? lex_list(a.v,b.v,1,0): lb(dyad['<'](a,b))
+	const lex_more=(a,b)=>lil(a)&&lil(b)? lex_list(a.v,b.v,0,0): lb(dyad['>'](a,b))
+	const pv=range(count(tab)).sort((a,b)=>{
+		if(lex_less(o[a],o[b]))return  order_dir
+		if(lex_more(o[a],o[b]))return -order_dir
+		return a-b // produce a stable sort
+	})
+	return dyad.take(lml(pv.map(lmn)),tab)
+}
+table_sort_asc=(tab,colname)=>orderby(tab,tab_get(tab,colname),-1)
+table_sort_radix=(tab,a,b)=>{const av=tab_get(tab,a),bv=tab_get(tab,b);return orderby(tab,av.map((x,i)=>lml([x,bv[i]])),-1)}
+table_swap_rows=(tab,a,b)=>{
+	if(a==b||a<0||b<0||a>tab_rowcount(tab)-1||b>tab_rowcount(tab)-1)return tab
+	const pv=monad.range(lmn(tab_rowcount(tab)));pv.v[a]=lmn(b),pv.v[b]=lmn(a);return dyad.take(pv,tab)
+}
 triad={
 	'@orderby': (col,tab,order_dir)=>{
-		const lex_list=(x,y,a,ix)=>{
-			if(x.length<ix&&y.length<ix)return 0;const xv=x[ix]||NIL,yv=y[ix]||NIL
-			return lex_less(xv,yv)?a: lex_more(xv,yv)?!a: lex_list(x,y,a,ix+1)
-		}
-		const lex_less=(a,b)=>lil(a)&&lil(b)? lex_list(a.v,b.v,1,0): lb(dyad['<'](a,b))
-		const lex_more=(a,b)=>lil(a)&&lil(b)? lex_list(a.v,b.v,0,0): lb(dyad['>'](a,b))
-		const o=dyad.take(lmn(count(tab)),lml(ll(col)));order_dir=ln(order_dir)
-		const pv=range(count(tab)).sort((a,b)=>{
-			if(lex_less(o.v[a],o.v[b]))return  order_dir
-			if(lex_more(o.v[a],o.v[b]))return -order_dir
-			return a-b // produce a stable sort
-		})
-		const rt=dyad.take(lml(pv.map(lmn)),tab)
+		const rt=orderby(tab,dyad.take(lmn(count(tab)),lml(ll(col))).v,ln(order_dir))
 		tab_set(rt,'gindex',range(count(tab)).map(lmn));return rt
 	},
 	'@sel': (orig,vals,keys)=>{
@@ -2241,6 +2250,7 @@ FONTS={
 	"AAAAAD/BQAA+IiIiIiI+AAA",
 }
 
+const PAL_COLORS=16
 COLORS=[
 	0xFFFFFFFF,0xFFFFFF00,0xFFFF6500,0xFFDC0000,0xFFFF0097,0xFF360097,0xFF0000CA,0xFF0097FF,
 	0xFF00A800,0xFF006500,0xFF653600,0xFF976536,0xFFB9B9B9,0xFF868686,0xFF454545,0xFF000000,
@@ -2291,6 +2301,13 @@ ivalue=(x,k,d)=>x.hasOwnProperty(k)?x[k]:d
 ifield=(x,k)  =>x.f(x,lms(k))
 iindex=(x,k,v)=>x.f(x,lmn(k),v)
 iwrite=(x,k,v)=>x.f(x,k,v)
+
+value_is_default=(self,key,dval)=>{
+	let r=self[key];if(r==undefined)return 1;if(typeof r=='string')r=lms(r);if(typeof r=='number'||typeof r=='boolean')r=lmn(r);
+	const card=self.card;if(!contraption_is(card))return match(r,dval)
+	const p=dget(card.def.widgets,ifield(self,'name'));if(!p)return 0
+	const v=ifield(p,key);return v!=undefined&&match(r,v)
+}
 value_inherit=(self,key)=>{
 	let r=self[key];if(typeof r=='string')r=lms(r);if(typeof r=='number'||typeof r=='boolean')r=lmn(r);
 	const card=self.card;if(!contraption_is(card))return r
@@ -2366,7 +2383,7 @@ readcolor=(cr,cg,cb,grayscale)=>{
 		const rf=0.2126*Math.pow(cr,2.2), gf=0.7152*Math.pow(cg,2.2), bf=0.0722*Math.pow(cb,2.2), gg=Math.pow(rf+gf+bf,1/2.2)
 		return clamp(0,0|gg,255)
 	}
-	let ci=0,cd=1e20;for(let c=0;c<16;c++){
+	let ci=0,cd=1e20;for(let c=0;c<PAL_COLORS;c++){
 		const dr=abs(((COLORS[c]>>16)&0xFF)/256.0-cr/256.0),
 			  dg=abs(((COLORS[c]>> 8)&0xFF)/256.0-cg/256.0),
 			  db=abs(((COLORS[c]    )&0xFF)/256.0-cb/256.0),
@@ -2381,12 +2398,17 @@ interface_app=lmi((self,i,x)=>{
 	if(x&&lis(i)){
 		if(i.v=='fullscreen')return set_fullscreen(lb(x)),x
 		if(i.v=='gridsize'  )return dr.grid_size=rmax(rect(1,1),rint(getpair(x))),x
+		if(i.v=='penstroke' )return dr.pattern=0|clamp(0,ln(x),255),x
+		if(i.v=='penfill'   )return dr.fill   =0|clamp(0,ln(x),255),x
 		if(i.v=='cursor'    ){desired_cursor=linil(x)?null: normalize_enum(cursor_names,ls(x));return x}
 	}else if(lis(i)){
 		if(i.v=='fullscreen')return lmn(is_fullscreen())
 		if(i.v=='gridsize'  )return lmpair(dr.grid_size)
+		if(i.v=='penstroke' )return lmn(dr.pattern)
+		if(i.v=='penfill'   )return lmn(dr.fill)
 		if(i.v=='cursor'    )return desired_cursor==null?NIL: lms(desired_cursor)
 		if(i.v=='playing'   )return lmn(audio_playing)
+		if(i.v=='params'    ){const r=lmd();(new URL(document.URL)).searchParams.forEach((v,k)=>dset(r,lms(k),lms(v)));return r}
 		if(i.v=='save'      )return lmnat(_=>((modal_enter&&modal_enter('save_deck'),NIL)))
 		if(i.v=='exit'      )return lmnat(_=>NIL) // does nothing in web-decker
 		if(i.v=='show')return lmnat(z=>{
@@ -2460,7 +2482,23 @@ draw_line_function=(r,func,pattern)=>{
 		}if(r.x==r.w&&r.y==r.h)break;let e2=err*2; if(e2>=dy)err+=dy,r.x+=sx; if(e2<=dx)err+=dx,r.y+=sy; a.v[1]=ZERO
 	}popstate()
 }
+clip_line=(r,clip)=>{
+	const xmin=clip.x-10, xmax=clip.x+clip.w+10, ymin=clip.y-10, ymax=clip.y+clip.h+10
+	const outcode=(a,b)=>(a<xmin)|((a>xmax)<<1)|((b<ymin)<<2)|((b>ymax)<<3)
+	let o1=outcode(r.x,r.y), o2=outcode(r.w,r.h)
+	while(1){
+		if(!(o1|o2))return rint(r);if(o1&o2)return null
+		let oo=o1?o1:o2, x=0, y=0
+		if     (oo&8){x=r.x+(r.w-r.x)*(ymax-r.y)/(r.h-r.y),y=ymax}
+		else if(oo&4){x=r.x+(r.w-r.x)*(ymin-r.y)/(r.h-r.y),y=ymin}
+		else if(oo&2){y=r.y+(r.h-r.y)*(xmax-r.x)/(r.w-r.x),x=xmax}
+		else if(oo&1){y=r.y+(r.h-r.y)*(xmin-r.x)/(r.w-r.x),x=xmin}
+		if(oo==o1){r.x=x,r.y=y,o1=outcode(x,y)}
+		else      {r.w=x,r.h=y,o2=outcode(x,y)}
+	}
+}
 draw_line=(r,brush,pattern,deck)=>{
+	r=clip_line(r,frame.clip);if(!r)return
 	if(brush>=0&&brush<=23){draw_line_simple(r,brush,pattern);return}
 	const b=deck.brushes;if(brush<0||brush-24>=b.v.length)return;const f=b.v[brush-24]
 	if(image_is(f)){draw_line_custom(r,f,pattern)}else if(lion(f)){draw_line_function(r,f,pattern)}
@@ -2674,10 +2712,10 @@ pointer={f:(self,i,x)=>{
 let keypress={},keydown={},keyup={}
 gamepad={f:(self,i,x)=>{
 	const keymap={
-		'up'    :['ArrowUp'   ,'GamepadUp','GamestickUp'],
-		'down'  :['ArrowDown' ,'GamepadDn','GamestickDn'],
-		'left'  :['ArrowLeft' ,'GamepadLf','GamestickLf'],
-		'right' :['ArrowRight','GamepadRt','GamestickRt'],
+		'up'    :['w','ArrowUp'   ,'GamepadUp','GamestickUp'],
+		'down'  :['s','ArrowDown' ,'GamepadDn','GamestickDn'],
+		'left'  :['a','ArrowLeft' ,'GamepadLf','GamestickLf'],
+		'right' :['d','ArrowRight','GamepadRt','GamestickRt'],
 		'action':['z','c','n',' ','GamepadA1'],
 		'cancel':['x','v','m'    ,'GamepadA2'],
 	}
@@ -2760,46 +2798,58 @@ module_write=x=>{
 	return r
 }
 
-const casts={u8:1,i8:1,u16b:2,u16l:2,i16b:2,i16l:2,u32b:4,u32l:4,i32b:4,i32l:4,char:1}
+const casts={u8:1,i8:1,u16b:2,u16l:2,i16b:2,i16l:2,u32b:4,u32l:4,i32b:4,i32l:4,char:1,f32b:4,f32l:4,f64b:8,f64l:8}
 array_write=x=>data_write('DAT'+String.fromCharCode(48+Object.keys(casts).indexOf(x.cast)),x.data.slice(x.base,x.base+x.size))
-array_read=x=>{const f=x.charCodeAt(5),d=data_read('DAT',x);return d?array_make(d.length,Object.keys(casts)[clamp(0,f-48,10)],0,d):array_make(0,'u8',0)}
+array_read=x=>{const f=x.charCodeAt(5),d=data_read('DAT',x);return d?array_make(d.length,Object.keys(casts)[clamp(0,f-48,14)],0,d):array_make(0,'u8',0)}
 n_array=([x,y])=>{if(lis(x))return array_read(ls(x));const size=ln(x),cast=y?normalize_enum(casts,ls(y)):'u8';return array_make(size,cast,0)}
 array_make=(size,cast,base,buffer)=>{
 	const offset=x=>({offset:ln(lil(x)?monad.first(x):x),len:lil(x)?max(0,ln(monad.last(x))):-1})
+	const view=a=>{if(!a.dv)a.dv=new DataView(a.data.buffer);return a.dv}
 	const shift=(a,here)=>({here:0, size:a.size-here, base:a.base+here, cast:a.cast, data:a.data})
 	const resize=(a,size)=>{
-		if(a.slice)return;size=max(0,size);const old=a.data;a.data=new Uint8Array(size)
+		if(a.slice)return;size=max(0,size);const old=a.data;a.data=new Uint8Array(size),a.dv=null
 		for(let z=0;z<a.data.length;z++)a.data[z]=z>=old.length?0:old[z];a.size=size
 	}
 	const get_raw=(a,index)=>{
 		const step=casts[a.cast];if(index<0||index>=(0|(a.size/step)))return 0
 		const ix=a.base+step*index;if(ix<0||ix+step>a.data.length)return 0
-		const ur=(i,s)=>a.data[ix+i]<<s
-		const s8 =x=>x<<24>>24
-		const s16=x=>x<<16>>16
-		const u32=(a,b,c,d)=>(2*a)+(b|c|d)
-		if(a.cast=='u8'  )return     ur(0,0)
-		if(a.cast=='i8'  )return  s8(ur(0,0))
-		if(a.cast=='u16b')return    (ur(0,8)|ur(1,0))
-		if(a.cast=='u16l')return    (ur(1,8)|ur(0,0))
-		if(a.cast=='i16b')return s16(ur(0,8)|ur(1,0))
-		if(a.cast=='i16l')return s16(ur(1,8)|ur(0,0))
-		if(a.cast=='u32b')return u32(ur(0,23),ur(1,16),ur(2,8),ur(3,0))
-		if(a.cast=='u32l')return u32(ur(3,23),ur(2,16),ur(1,8),ur(0,0))
-		if(a.cast=='i32b')return    (ur(0,24)|ur(1,16)|ur(2,8)|ur(3,0))
-		if(a.cast=='i32l')return    (ur(3,24)|ur(2,16)|ur(1,8)|ur(0,0))
-		return drom_from_ord(ur(0,0))
+		const d=view(a)
+		if(a.cast=='u8'  )return d.getUint8  (ix)
+		if(a.cast=='i8'  )return d.getInt8   (ix)
+		if(a.cast=='u16b')return d.getUint16 (ix,0)
+		if(a.cast=='u16l')return d.getUint16 (ix,1)
+		if(a.cast=='i16b')return d.getInt16  (ix,0)
+		if(a.cast=='i16l')return d.getInt16  (ix,1)
+		if(a.cast=='u32b')return d.getUint32 (ix,0)
+		if(a.cast=='u32l')return d.getUint32 (ix,1)
+		if(a.cast=='i32b')return d.getInt32  (ix,0)
+		if(a.cast=='i32l')return d.getInt32  (ix,1)
+		if(a.cast=='f32b')return d.getFloat32(ix,0)
+		if(a.cast=='f32l')return d.getFloat32(ix,1)
+		if(a.cast=='f64b')return d.getFloat64(ix,0)
+		if(a.cast=='f64l')return d.getFloat64(ix,1)
+		return drom_from_ord(getUint8(ix))
 	}
 	const set_raw=(a,index,v)=>{
 		if('string'==typeof v)v=drom_to_ord(v)
 		const step=casts[a.cast];if(index<0||index>=(0|(a.size/step)))return
 		const ix=a.base+step*index;if(ix<0||ix+step>a.data.length)return
-		const uw=(i,s)=>a.data[ix+i]=v>>>s
-		if     (a.cast=='u16b'||a.cast=='i16b')uw(0,8),uw(1,0)
-		else if(a.cast=='u16l'||a.cast=='i16l')uw(1,8),uw(0,0)
-		else if(a.cast=='u32b'||a.cast=='i32b')uw(0,24),uw(1,16),uw(2,8),uw(3,0)
-		else if(a.cast=='u32l'||a.cast=='i32l')uw(3,24),uw(2,16),uw(1,8),uw(0,0)
-		else uw(0,0)
+		const d=view(a)
+		if     (a.cast=='u8'  )d.setUint8  (ix,v)
+		else if(a.cast=='i8'  )d.setInt8   (ix,v)
+		else if(a.cast=='u16b')d.setUint16 (ix,v,0)
+		else if(a.cast=='u16l')d.setUint16 (ix,v,1)
+		else if(a.cast=='i16b')d.setInt16  (ix,v,0)
+		else if(a.cast=='i16l')d.setInt16  (ix,v,1)
+		else if(a.cast=='u32b')d.setUint32 (ix,v,0)
+		else if(a.cast=='u32l')d.setUint32 (ix,v,1)
+		else if(a.cast=='i32b')d.setInt32  (ix,v,0)
+		else if(a.cast=='i32l')d.setInt32  (ix,v,1)
+		else if(a.cast=='f32b')d.setFloat32(ix,v,0)
+		else if(a.cast=='f32l')d.setFloat32(ix,v,1)
+		else if(a.cast=='f64b')d.setFloat64(ix,v,0)
+		else if(a.cast=='f64l')d.setFloat64(ix,v,1)
+		else d.setUint8(ix,v)
 	}
 	const get=(a,index,len)=>{
 		if(a.cast=='char'&&len<0)len=1
@@ -3101,18 +3151,25 @@ is_blank=x=>!image_is(x)?0: !x.pix.some(x=>x>0)
 sound_make=data=>{
 	const sign_extend=x=>(x<<24>>24)
 	const ri=lmi((self,i,x)=>{
-		const fetch=ix=>ix<0||ix>=self.data.length?NIL:lmn(sign_extend(self.data[ix]))
+		const interpolate=ix=>{
+			if(self.data.length<1)return 0;
+			if(ix<0)return sign_extend(self.data[0]);
+			if(ix>self.data.length-1)return sign_extend(self.data[self.data.length-1])
+			const a=sign_extend(self.data[Math.floor(ix)]), b=sign_extend(self.data[Math.ceil(ix)])
+			return 0|(a+((ix%1.0)*(b-a)))
+		}
+		const fetch=ix=>ix<0||ix>=self.data.length?NIL:lmn(interpolate(ix))
 		if(i&&lin(i)){ // read/write single samples
-			return x?((self.data[ln(i)]=0xFF&ln(x)),x): fetch(ln(i))
+			return x?((self.data[0|ln(i)]=0xFF&ln(x)),x): fetch(ln(i))
 		}
 		if(i&&lil(i)){ // read/write ranges
-			const n=getpair(i);n.x=min(n.x,self.data.length),n.y=max(0,n.y);if(x){
+			const n=rint(getpair(i));n.x=min(n.x,self.data.length),n.y=max(0,n.y);if(x){
 				const s=ll(x),dc=self.data.length,sc=s.length, r=new Uint8Array(clamp(0,(dc-n.y)+sc,10*SFX_RATE))
 				for(let z=0;z<n.x         ;z++)r[z]=self.data[z]
 				for(let z=0;z<sc          ;z++)r[n.x+z   ]=0xFF&ln(s[z])
 				for(let z=0;z<dc-(n.x+n.y);z++)r[n.x+sc+z]=0xFF&self.data[n.x+n.y+z]
 				return self.data=r,x
-			}else{return lml(range(n.y).map(x=>fetch(x+n.x)))}
+			}else{const b=ln(monad.first(i));return lml(range(n.y).map(x=>fetch(b+x)))}
 		}
 		if(ikey(i,'encoded'))return lms(sound_write(self))
 		if(ikey(i,'hist'))return buffer_hist(self.data,1)
@@ -3123,6 +3180,12 @@ sound_make=data=>{
 		}
 		if(ikey(i,'duration'))return lmn(self.data.length/SFX_RATE)
 		if(ikey(i,'map'))return lmnat(([x,fill])=>(buffer_map(self.data,x,fill),self))
+		if(ikey(i,'scaled'))return lmnat(([s])=>{
+			const scale=ln(s),dst=new Uint8Array(clamp(0,0|(self.data.length*Math.abs(scale)),10*SFX_RATE))
+			if     (self.data.length>0&&scale>0)for(let z=0;z<dst.length;z++)dst[z]=interpolate(              z  / scale)
+			else if(self.data.length>0&&scale<0)for(let z=0;z<dst.length;z++)dst[z]=interpolate((dst.length-1-z) /-scale)
+			return sound_make(dst)
+		})
 		return x?x:NIL
 	},'sound')
 	if(data&&data.length>10*SFX_RATE)data=data.slice(0,10*SFX_RATE)
@@ -3133,32 +3196,33 @@ sound_read=x=>sound_make((typeof x=='string')?data_read('SND',x):new Uint8Array(
 sound_write=x=>data_write('SND0',x.data)
 n_sound=([x])=>!x?sound_read(0): lis(x)?sound_read(ls(x)): lin(x)?sound_read(ln(x)): sound_make(Uint8Array.from(ll(x).map(ln)))
 
+const pal_color_space=ceil((PAL_COLORS*3)/8)
 pal_col_get=(pal,c)=>{const b=(8*224)+(3*c);return 0xFF000000|((pal[b]<<16)|(pal[b+1]<<8)|pal[b+2])}
 pal_col_set=(pal,c,x)=>{const b=(8*224)+(3*c);pal[b]=0xFF&(x>>16),pal[b+1]=0xFF&(x>>8),pal[b+2]=0xFF&x}
-pick_palette=deck=>{for(let z=0;z<16;z++)COLORS[z]=pal_col_get(deck.patterns.pal.pix,z)}
+pick_palette=deck=>{for(let z=0;z<PAL_COLORS;z++)COLORS[z]=pal_col_get(deck.patterns.pal.pix,z)}
 patterns_read=x=>{
 	const set=(pal,p,x,y,v)=>pal[(x%8)+(8*(y%8))+(8*8*p)]=v
 	const ri=lmi((self,i,x)=>{
 		let r=null, t=i&&ln(i)?ln(i):0
 		if(x){
 			if(t>= 2&&t<=27&&image_is(x)){for(let a=0;a<8;a++)for(let b=0;b<8;b++)set(self.pal.pix,t,b,a,lb(iwrite(x,lmpair(rect(b,a)))))}
-			if(t>=28&&t<=31){r=ll(x);if(r.length>256)r=r.slice(0,256);self.anim[t-28]=r.map(x=>{const f=clamp(0,ln(x),47);return f>=28&&f<=31?0:f});r=lml(r)}
-			if(t>=32&&t<=47){pal_col_set(self.pal.pix,t-32,0xFF000000|ln(x));r=x}
+			if(t>=28&&t<=31){r=ll(x);if(r.length>256)r=r.slice(0,256);self.anim[t-28]=r.map(x=>{const f=clamp(0,0|ln(x),255);return f>=28&&f<=31?0:f});r=lml(r)}
+			if(t>=32&&t<32+PAL_COLORS){pal_col_set(self.pal.pix,t-32,0xFF000000|ln(x));r=x}
 		}else{
 			if(t>= 0&&t<=27){r=image_copy(self.pal,rect(0,t*8,8,8))}
 			if(t>=28&&t<=31){r=lml(self.anim[t-28].map(lmn))}
-			if(t>=32&&t<=47){r=lmn(0xFFFFFF&pal_col_get(self.pal.pix,t-32))}
+			if(t>=32&&t<32+PAL_COLORS){r=lmn(0xFFFFFF&pal_col_get(self.pal.pix,t-32))}
 		}return r?r:x?x:NIL
 	},'patterns')
 	let i=image_read(x.patterns?ls(x.patterns):DEFAULT_PATTERNS)
-	if(i.size.x!=8||i.size.y!=224+6){i=image_resize(i,rect(8,224+6));for(let z=0;z<16;z++)pal_col_set(i.pix,z,DEFAULT_COLORS[z])}
+	if(i.size.x!=8||i.size.y!=224+pal_color_space){i=image_resize(i,rect(8,224+pal_color_space));for(let z=0;z<PAL_COLORS;z++)pal_col_set(i.pix,z,DEFAULT_COLORS[z])}
 	ri.pal=i
 	ri.anim=JSON.parse(DEFAULT_ANIMS);if(x.animations&&lil(x.animations))ll(x.animations).map((x,i)=>iindex(ri,28+i,x))
 	return ri
 }
 patterns_write=x=>{
 	const p=x.pal.pix, c=DEFAULT_COLORS.some((x,i)=>(0xFFFFFF&x)!=(0xFFFFFF&pal_col_get(p,i)))
-	return image_write(image_resize(image_copy(x.pal),rect(8,224+(6*c))))
+	return image_write(image_resize(image_copy(x.pal),rect(8,224+(pal_color_space*c))))
 }
 anims_write=x=>lml(x.anim.map(x=>lml(x.map(lmn))))
 
@@ -3435,6 +3499,7 @@ field_read=(x,card)=>{
 			if(ikey(i,'scrollto' ))return lmnat(([x])=>{
 				const bi=inset(rpair(getpair(ifield(self,'pos')),getpair(ifield(self,'size'))),2);if(lb(ifield(self,'scrollbar')))bi.w-=12+3
 				const l=layout_richtext(self.card.deck,ifield(self,'value'),ifield(self,'font'),ALIGN[ls(ifield(self,'align'))],bi.w)
+				if(l.layout.length<1)return self
 				const i=x?min(max(0,0|ln(monad.first(x))),l.layout.length-1):0, c=rcopy(l.layout[i].pos), os=ln(ifield(self,'scroll'));c.y-=os
 				const ch=min(bi.h,c.h);let t=os;if(c.y<0){t+=c.y};if(c.y+ch>=bi.h){t+=((c.y+ch)-bi.h)}
 				if(t!=os)iwrite(self,lms('scroll'),lmn(t));return self
@@ -3456,7 +3521,10 @@ field_write=x=>{
 	if(x.style&&x.style!='rich')dset(r,lms('style'),lms(x.style))
 	if(x.align&&x.align!='left')dset(r,lms('align'),lms(x.align))
 	if(x.scroll&&!x.volatile)dset(r,lms('scroll'),lmn(x.scroll))
-	if(x.value&&!x.volatile){if(rtext_is_plain(x.value)){const v=rtext_string(x.value);if(ls(v))dset(r,lms('value'),v)}else{dset(r,lms('value'),rtext_write(x.value))}}
+	if(x.value&&!x.volatile){
+		if(rtext_is_plain(x.value)){const v=rtext_string(x.value);if(!value_is_default(x,'value',rtext_cast()))dset(r,lms('value'),v)}
+		else{dset(r,lms('value'),rtext_write(x.value))}
+	}
 	return r
 }
 slider_styles={horiz:1,vert:1,bar:1,compact:1}
@@ -3490,7 +3558,7 @@ slider_read=(x,card)=>{
 slider_write=x=>{
 	const r=lmd([lms('type')],[lms('slider')])
 	if(x.interval)dset(r,lms('interval'),lmpair(x.interval))
-	if(x.value!=undefined&&x.value!=0&&!x.volatile)dset(r,lms('value'),lmn(x.value))
+	if(x.value!=undefined&&!value_is_default(x,'value',ZERO)&&!x.volatile)dset(r,lms('value'),lmn(x.value))
 	if(x.step!=undefined&&x.step!=1)dset(r,lms('step'),lmn(x.step))
 	if(x.format!=undefined&&x.format!='%f')dset(r,lms('format'),lms(x.format))
 	if(x.style&&x.style!='horiz')dset(r,lms('style'),lms(x.style))
@@ -3515,7 +3583,7 @@ grid_nrd=(rowcount,g)=>{
 }
 grid_scrollto=(self,g,s,r)=>{
 	let nrd=0;if((typeof self)!='number'){
-		const p=grid_pv(self);nrd=grid_nrd(p.pv.length,g);r=clamp(0,r,p.vp.length-1)
+		const p=grid_pv(self);nrd=grid_nrd(p.pv.length,g);if(p.vp.length<1)return r;r=clamp(0,r,p.vp.length-1)
 		let rs=0;while(r<p.vp.length){rs=p.vp[r];if(rs!=-1)break;r++};r=rs
 	}else{nrd=grid_nrd(self,g)};return (r-s<0)?r: (r-s>=nrd)?r-(nrd-1): s
 }
@@ -3965,7 +4033,10 @@ contraption_update=(deck,def)=>{
 		card.widgets.v.filter(x=>contraption_is(x)&&x.def==def).map(widget=>{
 			const d=widget_write(widget), n=widget.name
 			dset(d,lms('widgets'),contraption_strip(widget))
+			widget.widgets.v.map(w=>w.dead=true)
 			for(var k in widget)delete widget[k];Object.assign(widget,widget_read(d,card));widget.name=n
+			widget.widgets.v.map(w=>w.card=widget)
+			widget.viewproxy.card=widget
 		})
 	})
 }
@@ -3975,7 +4046,7 @@ normalize_margin=(x,s)=>{
 }
 prototype_read=(x,deck)=>{
 	x=ld(x)
-	const attribute_types={'':1,bool:1,number:1,string:1,code:1,rich:1}
+	const attribute_types={'':1,bool:1,number:1,string:1,code:1,rich:1,data:1,note:1}
 	const normalize_attributes=x=>{
 		const r=lmt();tab_set(r,'name',[]),tab_set(r,'label',[]),tab_set(r,'type',[]);if(!lit(x))return r
 		const sn=tab_get(x,'name'),sl=tab_get(x,'label')||sn,st=tab_get(x,'type')
@@ -4181,7 +4252,7 @@ deck_read=x=>{
 			if(ikey(i,'locked' ))return self.locked=lb(x),x
 			if(ikey(i,'name'   ))return self.name=ls(x),x
 			if(ikey(i,'author' ))return self.author=ls(x),x
-			if(ikey(i,'corners'))return self.corners=clamp(0,ln(x),47),x
+			if(ikey(i,'corners'))return self.corners=clamp(0,ln(x),255),x
 			if(ikey(i,'script' ))return self.script=ls(x),x
 			if(ikey(i,'card'   ))return n_go([x],self),x
 		}else{
@@ -4220,7 +4291,7 @@ deck_read=x=>{
 	ri.locked      =deck.hasOwnProperty('locked' )?lb(deck.locked ):0
 	ri.name        =deck.hasOwnProperty('name'   )?ls(deck.name   ):''
 	ri.author      =deck.hasOwnProperty('author' )?ls(deck.author ):''
-	ri.corners     =deck.hasOwnProperty('corners')?clamp(0,ln(deck.corners),47):1
+	ri.corners     =deck.hasOwnProperty('corners')?clamp(0,ln(deck.corners),255):1
 	ri.script      =deck.hasOwnProperty('script' )?scripts.get(ls(deck.script)):''
 	ri.card        =deck.hasOwnProperty('card'   )?clamp(0,ln(deck.card),Object.keys(cards).length-1):0
 	ri.size        =deck.hasOwnProperty('size'   )?rclamp(rect(8,8),getpair(deck.size),rect(4096,4096)):rect(512,342)
@@ -4569,31 +4640,33 @@ writegif=(frames,delays,palette,pal_size)=>{
 	const size=frames.reduce((s,f)=>rmax(s,f.size),rect(1,1)), pal=deck.patterns.pal.pix; let frame_index=0, payload=[]
 	const anim_ants       =(x,y)=>(0|((x+y+frame_index)/3))%2?15:0
 	const draw_pattern    =(pix,x,y)=>pix<2?(pix?1:0): pix>31?(pix==32?0:1): pal_pat(pal,pix,x,y)&1
-	const draw_color_trans=(pix,x,y)=>pix==ANTS?anim_ants(x,y): pix==0?16: pix>47?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
+	const draw_color_trans=(pix,x,y)=>pix==ANTS?anim_ants(x,y): pix==0?paltrans: pix>=(32+PAL_COLORS)?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
 	const b=x=>payload.push(x&0xFF), s=x=>{b(x);b(x>>8)}, t=x=>x.split('').forEach(x=>b(x.charCodeAt(0)))
 	t('GIF89a'),s(size.x),s(size.y) // header, dimensions
+	let lws=0;
 	if(pal_size){
-		const n=Math.log2(pal_size)-1
-		b(0xF0|n)                       // global colortable, 8-bits per channel, N colors
+		const n=Math.log2(pal_size)-1;lws=max(2,Math.log2(pal_size))
+		b(0xF0|n)                       // global colortable, 8-bits per channel, 2^N+1 colors
 		b(0),b(0)                       // background color is 0, 1:1 pixel aspect ratio
 		for(let z=0;z<pal_size;z++)b(palette[z]>>16),b(palette[z]>>8),b(palette[z]) // global colortable
 	}else{
-		b(0xF4)                         // global colortable, 8-bits per channel, 32 colors
+		let mc=0;frames.forEach(f=>f.pix.forEach(d=>mc=max(mc,draw_color_trans(d,0,0))));mc=mc>15?32:16
+		const n=Math.log2(mc);paltrans=mc,lws=Math.log2(mc)+1
+		b(0xF0|n)                       // global colortable, 8-bits per channel, 2^N+1 colors
 		b(0),b(0)                       // background color is 0, 1:1 pixel aspect ratio
-		for(let z=0;z<16;z++)b(COLORS[z]>>16),b(COLORS[z]>>8),b(COLORS[z]) // global colortable
-		for(let z=0;z<16;z++)b(0xFF         ),b(0xFF        ),b(0xFF     ) // padding entries
+		for(let z=0;z<paltrans;z++)b(COLORS[z]>>16),b(COLORS[z]>>8),b(COLORS[z]) // global colortable
+		for(let z=0;z<paltrans;z++)b(0xFF         ),b(0xFF        ),b(0xFF     ) // padding entries
 	}
-	s(0xFF21),b(11),t('NETSCAPE2.0'),b(3),b(1),s(0),b(0)               // NAB; loop gif forever
+	s(0xFF21),b(11),t('NETSCAPE2.0'),b(3),b(1),s(0),b(0) // NAB; loop gif forever
 	for(let z=0;z<frames.length;z++){
 		const frame=frames[z]
 		s(0xF921),b(4)                            // graphic control extension
-		b(pal_size&&paltrans==-1?8:9)             // dispose to bg + has transparency
+		b(8|(paltrans==-1?0:1))                   // dispose to bg + has transparency?
 		s(delays[z])                              // 100ths of a second delay
-		b(pal_size&&paltrans==-1?0: pal_size?paltrans: 16) // transparent color index, if any
+		b(paltrans==-1?0: paltrans)               // transparent color index, if any
 		b(0)                                      // end GCE
 		b(0x2C)                                   // image descriptor
 		s(0),s(0),s(frame.size.x),s(frame.size.y) // dimensions
-		const lws=pal_size?max(2,Math.log2(pal_size)): 5
 		b(0),b(lws)                               // no local colortable,  minimum LZW code size
 		let bo=payload.length
 		const t=[];for(let y=0;y<frame.size.y;y++)for(let x=0;x<frame.size.x;x++){
@@ -4649,7 +4722,7 @@ draw_modalbox=s=>{
 draw_modal_rtext=extra=>{
 	const size=rect(200,100)
 	const l=lit(ms.message)?layout_richtext(deck,ms.message,FONT_BODY,ALIGN.center,size.x):layout_plaintext(ls(ms.message),FONT_BODY,ALIGN.center,size)
-	const b=draw_modalbox(radd(l.size,extra)), tbox=rect(b.x,b.y,b.w,l.size.y)
+	const b=draw_modalbox(radd(l.size,extra)), tbox=rclip(rect(b.x,b.y,b.w,l.size.y),frame.clip)
 	if(lit(ms.message)){draw_text_rich(tbox,l,1,1)}else{draw_text_wrap(tbox,l,1)}
 	return b
 }
@@ -5012,7 +5085,7 @@ keycaps_force_enter=_=>{kc.shift=0,kc.lock=0,kc.alt=0,kc.comb=0,kc.on=1,ev.mu=ev
 keycaps_enter=_=>{if(!enable_touch||kc.on)return;keycaps_force_enter()}
 
 let msg={ // interpreter event messages
-	pending_drag:0,pending_halt:0,pending_view:0,pending_loop:0,next_view:0,overshoot:0,
+	pending_halt:0,pending_view:0,pending_loop:0,next_view:0,overshoot:0,
 	target_click:null,target_drag:null,target_release:null,target_order:null,target_run:null,target_link:null,target_ccell:null,target_change:null,target_navigate:null,
 	arg_click:rect(),arg_drag:rect(),lastdrag:rect(),arg_release:rect(),arg_order:null,arg_run:null,arg_link:null,arg_ccell:null,arg_change:null,arg_navigate:null,
 }
@@ -5033,7 +5106,7 @@ bg_pat=_=>(dr.trans_mask&&dr.pattern==0)?32:dr.pattern
 bg_fill=_=>(dr.trans_mask&&dr.fill==0)?32:dr.fill
 bg_has_sel=_=>dr.tool=='select'&&(dr.sel_here.w>0||dr.sel_here.h>0)
 bg_has_lasso=_=>dr.tool=='lasso'&&dr.mask!=null
-sint=(x,a)=>a*(0|((0|(x+a/2))/a))
+sint=(x,a)=>a*(0|((0|(x+((x<0?-1:1)*a/2)))/a))
 snap=p=>!dr.snap?p:rect(sint(p.x,dr.grid_size.x),sint(p.y,dr.grid_size.y),p.w,p.h) // position only
 snapr=r=>rpair(snap(r),snap(rect(r.w,r.h))) // position + dimensions
 snap_delta=p=>{const a=snap(p);return rect(a.x-p.x,a.y-p.y)}
@@ -5299,7 +5372,7 @@ widget_grid=(target,x,value)=>{
 	const rowh=n=>inset(rect(bb.x+1,bb.y+rh*n+2,bb.w-2,rh-3),x.lines?0:-1)
 	let clicked=0,rsel=0,hrow=-1,hcol=-1;for(let y=0;y<nrd;y++){
 		if(_bg!=-1){
-			const p=clamp(0,ln(grid_cell_at(tk[_bg],y+value.scroll)),47)
+			const p=clamp(0,ln(grid_cell_at(tk[_bg],y+value.scroll)),255)
 			if(p){const t=rowb(y);if(y==0)t.y+=1,t.h-=1; draw_rect(t,p)}
 		}
 		const ra=in_layer()&&over(bb)&&over(rowb(y));let cbox=rect()
@@ -5324,7 +5397,7 @@ widget_grid=(target,x,value)=>{
 		if(drawncol&&x.lines)draw_invert(pal,rect(hs.x-3,b.y+1,1,b.h-2));cx+=cw[cols],drawncol=1
 		for(let y=0;y<nrd;y++){
 			const cell=rect(hs.x-3,bb.y+rh*y+1,hs.w+5,rh-1), v=grid_cell_at(tk[z],y+value.scroll)
-			const fc=x.format[z]=='L'?'s':(x.format[z]||'s'), ccol=y+value.scroll==hrow&&(x.bycell?cols==hcol :1)?bcol: _fg==-1?fcol: clamp(0,ln(grid_cell_at(tk[_fg],y+value.scroll)),47)
+			const fc=x.format[z]=='L'?'s':(x.format[z]||'s'), ccol=y+value.scroll==hrow&&(x.bycell?cols==hcol :1)?bcol: _fg==-1?fcol: clamp(0,ln(grid_cell_at(tk[_fg],y+value.scroll)),255)
 			const cf=ls(dyad.format(lms(`%${fc}`),fc=='j'||fc=='J'||fc=='a'?monad.list(v):v)), ip=rcenter(cell,ICONS[0].size)
 			const oc=frame.clip; frame.clip=rclip(cell,frame.clip)
 			if     (x.format[z]=='I'){const i=clamp(0,ln(v),8);if(i<8)draw_icon(ip,ICONS[i],ccol)}
@@ -5390,7 +5463,9 @@ grid_insertrow=_=>{
 	tab_cols(x).map((k,col)=>{
 		const o=tab_get(x,k)
 		tab_set(r,k,range(o.length+1).map(i=>(i==s)?('slurotT'.indexOf(f[col])>=0?lms(''):ZERO): o[i-(i>=s?1:0)]))
-	});grid_edit(r),iwrite(wid.gt,lms('col'),ZERO),iwrite(wid.gt,lms('row'),lmn(s))
+	})
+	if(count(r)==0)tab_set(r,'value',[NIL])
+	grid_edit(r),iwrite(wid.gt,lms('col'),ZERO),iwrite(wid.gt,lms('row'),lmn(s))
 	const os=wid.gv.scroll,ns=grid_scrollto(wid.gt,wid.g,os,s);if(os!=ns){wid.gv.scroll=ns,iwrite(wid.gt,lms('scroll'),lmn(ns))}
 }
 grid_edit_cell=(cell,v)=>{
@@ -5460,7 +5535,7 @@ widget_field=(target,x,value)=>{
 	// find active link (if any)
 	let alink=null;if(x.locked&&!sel&&in_layer()&&x.locked&&(ev.md||ev.drag))for(let z=0;z<layout.layout.length;z++){
 		const g=layout.layout[z], pos=rcopy(g.pos);if(pos.w<1)continue // skip squashed spaces/newlines
-		pos.y-=value.scroll;if(pos.y+pos.h<0||pos.y>bi.h)continue; pos.x+=bi.x, pos.y+=bi.y // coarse clip
+		pos.y-=value.scroll;if(pos.y+pos.h<0||pos.y>bi.y+bi.h)continue; pos.x+=bi.x, pos.y+=bi.y // coarse clip
 		if(lis(g.arg)&&count(g.arg)&&dover(pos)&&over(pos)){alink=g.arg;break}
 	}
 	if(!x.locked&&!l&&dover(bi)&&(ev.md||ev.mu||ev.drag)){
@@ -5479,16 +5554,18 @@ widget_field=(target,x,value)=>{
 	if(sel){if(wid.gv)grid_exit();wid.infield=1,wid.f=x,wid.fv=value,wid.ft=target,keycaps_enter()}
 	// render
 	const bc=rclip(frame.clip,bi); const oc=frame.clip;frame.clip=bc
+	const selcol=((tfcol==0||tfcol==32)&&(bcol==0||bcol==32))?47: // try to avoid completely illegible text/selection
+	             ((tfcol==1||tfcol==47)&&(bcol==1||bcol==47))?32: tfcol
 	for(let z=0;z<layout.layout.length;z++){
 		const g=layout.layout[z], pos=rcopy(g.pos);if(pos.w<1)continue // skip squashed spaces/newlines
-		pos.y-=value.scroll;if(pos.y+pos.h<0||pos.y>bc.h)continue; pos.x+=bi.x, pos.y+=bi.y // coarse clip
+		pos.y-=value.scroll;if(pos.y+pos.h<0||pos.y>bc.y+bc.h)continue; pos.x+=bi.x, pos.y+=bi.y // coarse clip
 		if(lis(g.arg)&&count(g.arg)){
 			draw_hline(pos.x,pos.x+pos.w,pos.y+pos.h-1,alink==g.arg?fcol:19)
 			const a=x.locked&&in_layer()&&over(pos)&&target;if(a&&!ev.drag)uicursor=cursor.point
 			if(a&&ev.mu&&dover(pos))msg.target_link=target,msg.arg_link=g.arg
 		}
 		const csel=sel&&wid.cursor.x!=wid.cursor.y&&z>=min(wid.cursor.x,wid.cursor.y)&&z<max(wid.cursor.x,wid.cursor.y)
-		if(csel)draw_rect(rclip(pos,frame.clip),tfcol)
+		if(csel)draw_rect(rclip(pos,frame.clip),selcol)
 		if(image_is(g.arg)){image_paste(pos,frame.clip,g.arg,frame.image,x.show!='transparent');if(csel)draw_invert(pal,pos)}
 		else{draw_char(pos,g.font,g.char,csel?bcol: g.pat==1?tfcol:g.pat)}
 	}
@@ -5604,18 +5681,20 @@ widget_contraption=x=>{
 
 let attrs=[], attrs_scroll=0
 widget_attributes=b=>{
-	const attr_heights={bool:16,number:20,string:20,code:80,rich:80}
 	draw_box(b,0,1)
-	let h=5,lw=0;attrs.map(a=>{h+=attr_heights[a.type]+5;if(a.type!='bool')lw=max(lw,font_textsize(FONT_MENU,a.label).x)})
+	let h=5,lw=0;attrs.map(a=>{h+=a.height+5;if(a.type!='bool')lw=max(lw,font_textsize(FONT_MENU,a.label).x)})
 	const sbar=scrollbar(b,max(0,h-b.h),10,b.h,attrs_scroll,1,0), bi=sbar.size;attrs_scroll=sbar.scroll,bi.y+=1
 	const oc=frame.clip;frame.clip=bi,lw=0|min(lw+10,bi.w*.6)
 	const bp=ev.pos,bd=ev.dpos,bs=ev.scroll;ev.scroll=0;if(!over(bi))ev.pos=rect(-1,-1);if(!dover(bi))ev.dpos=rect(-1,-1)
 	let y=5;attrs.map(a=>{
-		const lb=rect(bi.x+5,bi.y+y-attrs_scroll,lw,attr_heights[a.type]), wb=rect(lb.x+lb.w+5,lb.y,(bi.w-15)-lb.w,lb.h);y+=lb.h+5
-		if(a.type=='bool'){lb.w=bi.w-10;if(ui_checkbox(lb,a.label,1,a.bval))a.bval^=1;return}else{draw_text_fit(lb,a.label,FONT_MENU,1)}
+		const lb=rect(bi.x+5,bi.y+y-attrs_scroll,lw,a.height), wb=rect(lb.x+lb.w+5,lb.y,(bi.w-15)-lb.w,lb.h);y+=lb.h+5
+		if     (a.type=='bool'){lb.w=bi.w-10;if(ui_checkbox(lb,a.label,1,a.bval))a.bval^=1;return}
+		else if(a.type=='note'){lb.w=bi.w-10;const l=layout_plaintext(a.label,FONT_BODY,ALIGN.left,rect(lb.w,lb.h));draw_text_rich_raw(lb,l,1,1,null);return;}
+		else{draw_text_fit(lb,a.label,FONT_MENU,1)}
 		if(a.type=='number')ui_field(wb,a.value)
 		if(a.type=='string')ui_field(wb,a.value)
 		if(a.type=='code'  )ui_codeedit(wb,1,a.value)
+		if(a.type=='data'  )ui_codeedit(wb,1,a.value)
 		if(a.type=='rich'  )ui_richedit(wb,1,a.value)
 	});frame.clip=oc,ev.pos=bp,ev.dpos=bd,ev.scroll=bs
 }
@@ -5660,7 +5739,8 @@ n_print=(a)=>{a[0]=a[0]||NIL;if(a.length<2){listen_show(ALIGN.right,1,lms(ls(a[0
 n_pre_listen=([a])=>{
 	const ev=getev();
 	for(let name of li.vars.keys()){if(!ev.v.get(name))ev.v.set(name,li.vars.get(name))}
-	if(ob.sel.length&&uimode=='object')ev.v.set('selected',lml(ob.sel.slice(0)))
+	if(uimode=='object'&&ob.sel.length)ev.v.set('selected',lml(ob.sel.slice(0)))
+	if(uimode=='draw'&&(bg_has_sel()||bg_has_lasso()))ev.v.set('selected',bg_has_lasso()?image_mask(dr.limbo,dr.mask): dr.limbo?bg_scaled_limbo():bg_copy_selection(dr.sel_here))
 	return a
 }
 n_post_listen=([a])=>{
@@ -5705,8 +5785,12 @@ n_panic=z=>{
 let audio=null, samples_playing=0, audio_loop=null, audio_loop_playing=null
 const audioContext=window.AudioContext||window.webkitAudioContext, offline=window.OfflineAudioContext||window.webkitOfflineAudioContext
 initaudio=_=>{if(!audio)audio=new audioContext({sampleRate:44100})}
-load_sound=(file,after)=>{
+load_sound=(file,hint,after)=>{
 	decode_sound=data=>{
+		if(after&&hint=='samples'){
+			const r=[];for(let z=0;z<data.length;z+=8)r.push(sample_to_byte(data[z]));
+			after(array_make(r.length,'i8',0,Uint8Array.from(r)));return;
+		}
 		const r=[];for(let z=0;z<data.length&&r.length<10*SFX_RATE;z+=8)r.push(sample_to_byte(data[z]));
 		if(after){after(sound_make(Uint8Array.from(r)));return;}
 		au.target=deck_add(deck,sound_read(ln(0))),mark_dirty()
@@ -5840,22 +5924,34 @@ sounds_enumerate=_=>{
 		iv.push(lmn(ICON.sound)),nv.push(deck.sounds.k[i])
 		bv.push(dyad.format(lms('%.2fkb'),lmn(ln(ifield(sn,'size'))/1000.0*1.33)))
 		sv.push(dyad.format(lms('%.2fs' ),ifield(sn,'duration')))
-	});return r
+	});return table_sort_asc(r,'name')
 }
 fonts_enumerate=_=>{ // note that this ALSO finds the selected font, if any!
-	const r=lmt(),iv=[],nv=[];tab_set(r,'icon',iv),tab_set(r,'name',nv);let fi=-1
-	deck.fonts.v.map((font,z)=>{
-		if(uimode=='object'){if(ob.sel.every(x=>ifield(x,'font')==font))fi=z}
-		else if(ms.old_wid.ft){if(ifield(ms.old_wid.ft,'font')==font)fi=z}
-		iv.push(lmn(ICON.font)),nv.push(deck.fonts.k[z])
-	});return gridtab(r,fi)
+	const r=lmt(),iv=[],nv=[];tab_set(r,'icon',iv),tab_set(r,'name',nv)
+	deck.fonts.v.map((font,z)=>{iv.push(lmn(ICON.font)),nv.push(deck.fonts.k[z])})
+	const rt=table_sort_asc(r,'name');let fi=-1
+	tab_get(rt,'name').map((name,i)=>{
+		const font=dget(deck.fonts,name)
+		if(uimode=='object'){if(ob.sel.every(x=>ifield(x,'font')==font))fi=i}
+		else if(ms.old_wid.ft){if(ifield(ms.old_wid.ft,'font')==font)fi=i}
+	})
+	return gridtab(rt,fi)
 }
 contraptions_enumerate=_=>{
 	const r=lmt(),iv=[],nv=[];tab_set(r,'icon',iv),tab_set(r,'name',nv)
-	deck.contraptions.k.map(k=>{iv.push(lmn(ICON.app)),nv.push(k)});return r
+	deck.contraptions.k.map(k=>{iv.push(lmn(ICON.app)),nv.push(k)});return table_sort_asc(r,'name')
+}
+let baseline_deck_size=null
+res_size=x=>{
+	let kb=-1;
+	if(baseline_deck_size==null){baseline_deck_size=deck_write(deck_read(''),0).length}
+	if(sound_is(x)){kb=sound_write(x).length}
+	if(font_is(x)){kb=font_write(x).length}
+	if(module_is(x)||prototype_is(x)){const d=deck_read('');deck_add(d,x);kb=deck_write(d,0).length-baseline_deck_size}
+	return kb==-1?lms(''): dyad.format(lms('%0.2fkb'),lml([lmn(kb/1000.0)]))
 }
 res_enumerate=(source)=>{
-	const r=lmt(),iv=[],nv=[],vv=[];tab_set(r,'icon',iv),tab_set(r,'name',nv),tab_set(r,'value',vv)
+	const r=lmt(),iv=[],nv=[],vv=[],kb=[];tab_set(r,'icon',iv),tab_set(r,'name',nv),tab_set(r,'value',vv),tab_set(r,'kb',kb)
 	const pat=source.patterns,pp=patterns_write(pat),pa=anims_write(pat),da=dyad.parse(lms('%j'),lms(DEFAULT_ANIMS))
 	if(!match(pa,da)||pp!=DEFAULT_PATTERNS)iv.push(lmn(ICON.pat)),nv.push(lms('patterns')),vv.push(pat)
 	const fonts=dyad.drop(lms('mono'),dyad.drop(lms('menu'),dyad.drop(lms('body'),source.fonts)))
@@ -5866,7 +5962,8 @@ res_enumerate=(source)=>{
 	modules.v.map((mod,i)=>{iv.push(lmn(ICON.lil)),nv.push(modules.k[i]),vv.push(mod)})
 	const defs=source.contraptions
 	defs.v.map((def,i)=>{iv.push(lmn(ICON.app)),nv.push(defs.k[i]),vv.push(def)})
-	return r
+	vv.forEach(x=>kb.push(res_size(x)))
+	return table_sort_radix(r,'icon','name')
 }
 title_caps=x=>{let w=1;return x.split('').map(c=>{if(w)c=drom_toupper(c);w=c==' '||c=='\n';return c}).join('')}
 do_transition=(tween,dest,errors)=>{
@@ -5928,9 +6025,13 @@ modal_enter=type=>{
 	if(type=='contraption_props'){
 		const w=ob.sel[0],a=ifield(w.def,'attributes');ms.name=fieldstr(ifield(w,'name'))
 		attrs=[],attrs_scroll=0;tab_get(a,'name').map((n,i)=>{
+			const attr_heights={bool:16,number:20,string:20,code:80,rich:80,data:80,note:0}
 			const v=iwrite(w,n), item={type:ls(tab_cell(a,'type',i)), label:ls(tab_cell(a,'label',i)), bval:0, value:fieldstr('')}
+			item.height=attr_heights[item.type]
 			if     (item.type=='bool'){item.bval=lb(v)}
+			else if(item.type=='data'){item.value.table=rtext_cast(dyad.format(lms('%J'),monad.list(v)))}
 			else if(item.type=='rich'){item.value.table=rtext_cast(v)}
+			else if(item.type=='note'){item.height=layout_plaintext(item.label,FONT_BODY,ALIGN.left,rect(213,400)).size.y}
 			else {item.value.table=rtext_cast(v)}
 			attrs.push(item)
 		})
@@ -6010,6 +6111,7 @@ modal_exit=value=>{
 			if(t=='string')v=rtext_string(attrs[i].value.table)
 			if(t=='code'  )v=rtext_string(attrs[i].value.table)
 			if(t=='rich'  )v=attrs[i].value.table
+			if(t=='data'  )v=dyad.parse(lms('%J'),rtext_string(attrs[i].value.table))
 			iwrite(w,n,v)
 		})
 	}
@@ -6025,7 +6127,9 @@ modal_exit=value=>{
 	}
 	if(ms.type=='recording'){
 		const name=rtext_string(ms.name.table);rename_sound(deck,au.target,name)
-		au.mode='stopped',modal_enter('sounds'),ms.grid.row=dkix(deck.sounds,name);return
+		au.mode='stopped',modal_enter('sounds')
+		tab_get(ms.grid.table,'name').map((k,i)=>{if(match(name,k))ms.grid.row=i})
+		return
 	}
 	if(ms.type=='widpattern'&&value!=-1)ob_edit_prop('pattern',lmn(value))
 	if(ms.subtype=='confirm_new'   &&value)load_deck(deck_read(''))
@@ -6036,6 +6140,7 @@ modal_exit=value=>{
 	if(ms.subtype=='input_lil'  )arg(),ret(rtext_string(ms.text.table))
 	if(ms.subtype=='choose_lil' )arg(),ret(ms.verb.v[ms.grid.row])
 	ms.type=null
+	ev.callback=null
 	if(ms.from_listener)modal_enter('listen')
 	if(enable_touch&&ms.from_keycaps)kc.on=1
 	if(ms.type==null&&uimode=='interact')msg.next_view=1
@@ -6149,7 +6254,7 @@ modals=_=>{
 		if(ui_table(gsize,[16,120],'Isss',ms.grid))n_play([s])
 		if(ui_button(rect(b.x+b.w-60,b.y+b.h-20,60,20),'OK',1)||ev.exit){
 			if(ms.from_action){
-				if(ms.grid.row>=0)ms.message=deck.sounds.k[ms.grid.row]
+				if(ms.grid.row>=0)ms.message=tab_cell(ms.grid.table,'name',ms.grid.row)
 				ms.grid=gridtab(transit_enumerate(),ms.act_transno),ms.type='action',ms.from_action=0
 			}else{modal_exit(1)}
 		}
@@ -6200,8 +6305,8 @@ modals=_=>{
 		if(ms.grid.scroll==-99){ms.grid.scroll=grid_scrollto(tab_rowcount(ms.grid.table),{size:gsize,font:FONT_BODY,headers:0},-1,ms.grid.row)}
 		const choose=ui_table(gsize,[16],'Is',ms.grid)
 		let psize=rect(b.x,gsize.y+gsize.h+5,b.w,50);draw_box(psize,0,1),psize=inset(psize,2)
-		if(ms.grid.row>=0){
-			const l=layout_plaintext(PANGRAM,deck.fonts.v[ms.grid.row],ALIGN.left,rect(psize.w,psize.h));draw_text_wrap(psize,l,1)}
+		const font=ms.grid.row<0?null: dget(deck.fonts,tab_cell(ms.grid.table,'name',ms.grid.row))
+		if(font){const l=layout_plaintext(PANGRAM,font,ALIGN.left,rect(psize.w,psize.h));draw_text_wrap(psize,l,1)}
 		const c=rect(b.x+b.w-60,b.y+b.h-20)
 		if(ui_button(rect(c.x,c.y,60,20),'OK',ms.grid.row>=0)||choose){
 			const nf=tab_cell(ms.grid.table,'name',ms.grid.row),nested=ms_stack.length>0;modal_pop(1)
@@ -6217,22 +6322,22 @@ modals=_=>{
 		const gsize=rect(b.x,b.y+15,b.w,b.h-20-50-25-(ms.type=='contraptions'?25:0))
 		const choose=ui_table(gsize,[16],'Is',ms.grid)
 		let psize=rect(b.x,gsize.y+gsize.h+5,b.w,50);draw_box(psize,0,1),psize=inset(psize,2)
-		if(ms.grid.row>=0){
-			const desc=ls(ifield(deck.contraptions.v[ms.grid.row],'description'))
+		const proto=ms.grid.row<0?null: dget(deck.contraptions,tab_cell(ms.grid.table,'name',ms.grid.row))
+		if(proto){
+			const desc=ls(ifield(proto,'description'))
 			const l=layout_plaintext(desc,FONT_BODY,ALIGN.left,rect(psize.w,psize.h));draw_text_wrap(psize,l,1)
 		}
 		const c=rect(b.x+b.w-60,b.y+b.h-20)
 		if(ms.type=='contraptions'){
 			if(ui_button(rect(b.x+b.w-60,b.y+b.h-20,60,20),'OK',1)||ev.exit){modal_exit(0)}
 			if(ui_button(rect(b.x,b.y+b.h-45,60,20),'New...',1)){modal_exit(1),con_set(deck_add(deck,lms('contraption'))),mark_dirty()}
-			if(ui_button(rect(b.x,b.y+b.h-20,60,20),'Edit...',ms.grid.row>=0)||choose){modal_exit(2),con_set(deck.contraptions.v[ms.grid.row])}
-			if(ui_button(rect(b.x+65,b.y+b.h-45,60,20),'Clone',ms.grid.row>=0)){
-				const s=ifield(deck,'contraptions').v[ms.grid.row]
-				deck_add(deck,s,lms(ls(ifield(s,'name'))+'_clone'))
+			if(ui_button(rect(b.x,b.y+b.h-20,60,20),'Edit...',proto)||choose){modal_exit(2),con_set(proto)}
+			if(ui_button(rect(b.x+65,b.y+b.h-45,60,20),'Clone',proto)){
+				deck_add(deck,proto,lms(ls(ifield(proto,'name'))+'_clone'))
 				ms.grid=gridtab(contraptions_enumerate())
 			}
-			if(ui_button(rect(b.x+65,b.y+b.h-20,60,20),'Delete',ms.grid.row>=0)){
-				deck_remove(deck,ifield(deck,'contraptions').v[ms.grid.row])
+			if(ui_button(rect(b.x+65,b.y+b.h-20,60,20),'Delete',proto)){
+				deck_remove(deck,proto)
 				ms.grid=gridtab(contraptions_enumerate())
 			}
 		}
@@ -6275,7 +6380,7 @@ modals=_=>{
 		if(ui_button(rect(b.x+b.w-60,c.y,60,20),'OK',1)||ev.exit)modal_exit(0)
 	}
 	else if(ms.type=='prototype_attrs'){
-		const b=draw_modalbox(rect(220,200)),def=con(), lw=42
+		const b=draw_modalbox(rect(220,220)),def=con(), lw=42
 		draw_textc(rect(b.x,b.y-5,b.w,20),`${title_caps(def.name)} Attributes`,FONT_MENU,1)
 		const gsize=rect(b.x,b.y+20,80,b.h-(20+5+20))
 		const before=ms.grid.row;ui_table(gsize,[gsize.w-18],'s',ms.grid)
@@ -6286,16 +6391,16 @@ modals=_=>{
 		const sel=ms.grid.row>=0
 		draw_text(rect(gsize.x+gsize.w+10,b.y+20+2,lw,20),'Name' ,FONT_MENU,1)
 		draw_text(rect(gsize.x+gsize.w+10,b.y+40+2,lw,20),'Label',FONT_MENU,1)
-		draw_text(rect(gsize.x+gsize.w+10,b.y+60+2,lw,20),'Type' ,FONT_MENU,1)
+		draw_text(rect(gsize.x+gsize.w+10,b.y+80+2,lw,20),'Type' ,FONT_MENU,1)
 		ui_dfield(rect(gsize.x+gsize.w+5+lw,b.y+20,b.w-(lw+5+gsize.w),18),sel,ms.name)
-		ui_dfield(rect(gsize.x+gsize.w+5+lw,b.y+40,b.w-(lw+5+gsize.w),18),sel,ms.text)
+		ui_dfield(rect(gsize.x+gsize.w+5+lw,b.y+40,b.w-(lw+5+gsize.w),2*18),sel,ms.text)
 		if(sel){
 			tab_get(ms.grid.table,'name' )[ms.grid.row]=rtext_string(ms.name.table)
 			tab_get(ms.grid.table,'label')[ms.grid.row]=rtext_string(ms.text.table)
 		}
-		const cr=rect(gsize.x+gsize.w+5+lw,b.y+62), c=rect(b.x,b.y+b.h-20)
-		const attr_types=['bool','number','string','code','rich']
-		const attr_labels=['Boolean','Number','String','Code','Rich Text']
+		const cr=rect(gsize.x+gsize.w+5+lw,b.y+80), c=rect(b.x,b.y+b.h-20)
+		const attr_types=['bool','number','string','code','rich','data','note']
+		const attr_labels=['Boolean','Number','String','Code','Rich Text','Data','Note']
 		const t=sel?ls(tab_cell(ms.grid.table,'type',ms.grid.row)):''
 		for(let z=0;z<attr_types.length;z++,cr.y+=16)if(ui_radio(rect(cr.x,cr.y,b.w-(lw+5+gsize.w),16),attr_labels[z],sel,t==attr_types[z])){
 			tab_get(ms.grid.table,'type')[ms.grid.row]=lms(attr_types[z])
@@ -6313,7 +6418,7 @@ modals=_=>{
 		if(ui_button(rect(b.x+b.w-60,c.y,60,20),'OK',1)||ev.exit){iwrite(def,lms('attributes'),ms.grid.table),mark_dirty(),modal_exit(1)}
 	}
 	else if(ms.type=='resources'){
-		const b=draw_modalbox(rect(380,190))
+		const b=draw_modalbox(rect(380,215))
 		draw_textc(rect(b.x,b.y-5,b.w,20),'Font/Deck Accessory Mover',FONT_MENU,1)
 		const lgrid=rect(b.x            ,b.y+15 ,120    ,b.h-(15+15+5+20))
 		const rgrid=rect(b.x+b.w-lgrid.w,lgrid.y,lgrid.w,lgrid.h         )
@@ -6327,6 +6432,7 @@ modals=_=>{
 		const cb=rect(lgrid.x+lgrid.w+5,lgrid.y+5,b.w-(lgrid.w+5+5+rgrid.w),20)
 		const rvalue=(g,k)=>tab_cell(g.table,k,g.row)
 		let sel=(ms.grid.table&&ms.grid.row>-1)?rvalue(ms.grid,'value'): ms.grid2.row>-1?rvalue(ms.grid2,'value'): null
+		let skb=(ms.grid.table&&ms.grid.row>-1)?rvalue(ms.grid,'kb'   ): ms.grid2.row>-1?rvalue(ms.grid2,'kb'   ): null
 		let copy_message='>> Copy >>',can_copy=1
 		if(ms.grid.row>-1&&sel&&(module_is(sel)||prototype_is(sel))){
 			const name=ifield(sel,'name');let sver=ln(ifield(sel,'version')),dver=sver;can_copy=0
@@ -6336,7 +6442,7 @@ modals=_=>{
 			if(sver<dver)can_copy=1,copy_message='>> Downgrade >>'
 		}
 		if(ui_button(cb,copy_message,can_copy&&ms.grid.row>-1)){
-			if(patterns_is(sel)){const dst=ifield(deck,'patterns');for(let z=2;z<=47;z++)iindex(dst,z,iindex(sel,z))}
+			if(patterns_is(sel)){const dst=ifield(deck,'patterns');for(let z=2;z<32+PAL_COLORS;z++)iindex(dst,z,iindex(sel,z))}
 			else if(module_is(sel)||prototype_is(sel)){deck_add(deck,sel)}
 			else{deck_add(deck,sel,rvalue(ms.grid,'name'))}
 			ms.grid2=gridtab(res_enumerate(deck)),mark_dirty();if(module_is(sel))validate_modules()
@@ -6345,21 +6451,28 @@ modals=_=>{
 			deck_remove(deck,rvalue(ms.grid2,'value'))
 			ms.grid2=gridtab(res_enumerate(deck)),mark_dirty(),sel=null
 		}cb.y+=25
+		if(sel&&module_is(sel)){
+			if(ui_button(cb,'Script...',1)){modal_exit(0),setscript(sel)}
+			cb.y+=25
+		}
 		const pre=rect(cb.x,cb.y,cb.w,b.h-(cb.y-b.y))
 		if(sel&&font_is(sel)){
-			draw_textc(rect(pre.x,pre.y+pre.h-18,pre.w,18),count(ifield(sel,'glyphs'))+' glyphs',FONT_BODY,1);pre.h-=20
+			draw_textc(rect(pre.x,pre.y+pre.h-18,pre.w,18),count(ifield(sel,'glyphs'))+' glyphs     '+ls(skb),FONT_BODY,1);pre.h-=20
 			const l=layout_plaintext(PANGRAM,sel,ALIGN.center,rect(pre.w,pre.h));draw_text_wrap(pre,l,1)
 		}
 		if(sel&&(module_is(sel)||prototype_is(sel))){
-			draw_textc(rect(pre.x,pre.y+pre.h-18,pre.w,18),ls(dyad.format(lms('version %f'),ifield(sel,'version'))),FONT_BODY,1);pre.h-=20
+			draw_textc(rect(pre.x,pre.y+pre.h-18,pre.w,18),ls(dyad.format(lms('version %f     '+ls(skb)),ifield(sel,'version'))),FONT_BODY,1);pre.h-=20
 			const l=layout_plaintext(ls(ifield(sel,'description')),FONT_BODY,ALIGN.center,rect(pre.w,pre.h));draw_text_wrap(pre,l,1)
 		}
-		if(sel&&sound_is(sel)){if(ui_button(cb,'Play',1))n_play([sel])}
+		if(sel&&sound_is(sel)){
+			if(ui_button(cb,'Play',1))n_play([sel])
+			draw_textc(rect(pre.x,pre.y+pre.h-18,pre.w,18),ls(skb),FONT_BODY,1)
+		}
 		if(sel&&patterns_is(sel)){
 			const c=frame.clip,pal=sel.pal.pix;frame.clip=pre;
 			const anim_ants   =(x,y)=>(0|((x+y+(0|(frame_count/2)))/3))%2?15:0
 			const draw_pattern=(pix,x,y)=>pix<2?(pix?1:0): pix>31?(pix==32?0:1): pal_pat(pal,pix,x,y)&1
-			const draw_color  =(pix,x,y)=>pix==ANTS?anim_ants(x,y): pix>47?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
+			const draw_color  =(pix,x,y)=>pix==ANTS?anim_ants(x,y): pix>=32+PAL_COLORS?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
 			for(let z=0;z<32;z++)for(let y=0;y<16;y++)for(let x=0;x<16;x++){
 				const h=rect(3+x+pre.x+16*(z%(0|(pre.w/16))), y+pre.y+16*(0|(z/(0|(pre.w/16)))))
 				if(inclip(h))pix(h,32+draw_color(z,x,y))
@@ -6459,7 +6572,8 @@ modals=_=>{
 				else if(deck_is(x))                        {save_deck(name,x)}
 				else                                       {save_text(name,ls(x))}
 			}
-		}))modal_exit(1);c.x-=65;
+			modal_exit(1)
+		}));c.x-=65
 		if(ui_button(rect(c.x,c.y,60,20),'Cancel',1)||ev.exit)modal_exit(0)
 	}
 	else if(ms.type=='alert'){
@@ -6489,7 +6603,7 @@ modals=_=>{
 		ui_button(rect(c.x,c.y,60,20),'Open',1,_=>{
 			if     (ls(ms.verb)=='array'    )open_file(ms.filter,file=>{load_array(file,        array=>{arg(),ret(array)          ,modal_exit(1)})})
 			else if(ms.filter=='image/*'    )open_file(ms.filter,file=>{load_image(file,ms.verb,image=>{arg(),ret(image)          ,modal_exit(1)})})
-			else if(ms.filter=='audio/*'    )open_file(ms.filter,file=>{load_sound(file,        sound=>{arg(),ret(sound)          ,modal_exit(1)})})
+			else if(ms.filter=='audio/*'    )open_file(ms.filter,file=>{load_sound(file,ms.verb,sound=>{arg(),ret(sound)          ,modal_exit(1)})})
 			else if(ms.filter=='.csv,.txt'  )open_text(ms.filter,                               text =>{arg(),ret(lms(text))      ,modal_exit(1)  })
 			else if(ms.filter=='.html,.deck')open_text(ms.filter,                               text =>{arg(),ret(deck_read(text)),modal_exit(1)  })
 			else                             open_text(''       ,                               text =>{arg(),ret(lms(text))      ,modal_exit(1)  })
@@ -6523,7 +6637,7 @@ modals=_=>{
 		dr.brush=clamp(0,dr.brush,(6*4)+count(br)-1)
 	}
 	else if(ms.type=='pattern'||ms.type=='fill'||ms.type=='widpattern'||ms.type=='spanpattern'){
-		const grid=rect(8,6), ss=25, gs=ss+4, m=5, lh=font_h(FONT_BODY)
+		const grid=rect(8,4+0|(PAL_COLORS/8)), ss=25, gs=ss+4, m=5, lh=font_h(FONT_BODY)
 		const getv=_=>ms.type=='widpattern'||ms.type=='spanpattern'?ob.pending_pattern  :ms.type=='pattern'?dr.pattern  :dr.fill
 		const setv=x=>ms.type=='widpattern'||ms.type=='spanpattern'?ob.pending_pattern=x:ms.type=='pattern'?dr.pattern=x:dr.fill=x
 		const b=draw_modalbox(rect(m+(grid.x*gs)+m,m+(grid.y*gs)+lh+m)); let v=getv()
@@ -6762,7 +6876,7 @@ modals=_=>{
 n_open=([type,hint])=>{
 	modal_enter('open_lil');let t=type?ls(type):'',r=lms('');ms.filter=''
 	if(t=='array')r=array_make(0,'u8',0)
-	if(t=='sound')ms.filter='audio/*',r=sound_make(new Uint8Array(0))
+	if(t=='sound')ms.filter='audio/*',r=(hint&&ls(hint)=='samples')?array_make(0,'i8',0): sound_make(new Uint8Array(0))
 	if(t=='image')ms.filter='image/*',r=image_make(rect())
 	if(t=='deck')ms.filter='.html,.deck',r=deck_read('')
 	if(t=='text')ms.filter='.csv,.txt'
@@ -7108,12 +7222,12 @@ bg_tools=_=>{
 			}
 			else if(dr.tool=='rect'||dr.tool=='fillrect'){
 				const b=snap(ev.dpos),a=snap(ev.pos),t=rsub(a,b);if(ev.shift){t.x=t.y=max(t.x,t.y)} // snap to square
-				bg_scratch_clear();const r=rnorm(rpair(b,t));r.w++,r.h++
+				bg_scratch_clear();const r=rnorm(rpair(b,t));if(!dr.snap){r.w++,r.h++}
 				if(dr.tool=='fillrect')draw_rect(r,bg_fill());draw_boxf(r,dr.brush,bg_pat(),deck)
 			}
 			else if(dr.tool=='ellipse'||dr.tool=='fillellipse'){
 				const b=snap(ev.dpos),a=snap(ev.pos),t=rsub(a,b);if(ev.shift){t.x=t.y=max(t.x,t.y)} // snap to circle
-				bg_scratch_clear();const r=rnorm(rpair(radd(b,rect(1,1)),t));r.w--,r.h--
+				bg_scratch_clear();const r=rnorm(rpair(radd(b,rect(1,1)),t));r.w--,r.h--;if(dr.snap){r.w=max(0,r.w-1),r.h=max(0,r.h-1)}
 				const c=rect(r.x+(r.w/2.0),r.y+(r.h/2.0)), divs=100, poly=range(divs).map(z=>{
 					const a=z*(2*Math.PI)/divs;return rint(rect(c.x+(0.5+r.w/2.0)*Math.cos(a),c.y+(0.5+r.h/2.0)*Math.sin(a)))
 				});poly.push(poly[0])
@@ -7529,12 +7643,12 @@ const tooltypes=['select','pencil','lasso','line','fill','poly','rect','fillrect
 const patorder=[0,1,4,5,8,9,16,17,12,13,18,19,20,21,22,23,24,25,26,27,2,6,3,7,10,11,14,15,28,29,30,31] // pleasing visual ramps for 2 columns
 
 toolbars=_=>{
-	if(!toolbars_enable||kc.on)return
-	if(ms.type||uimode=='script'||deck.locked){
-		clr=x=>{const c=q(x);c.getContext('2d').clearRect(0,0,c.width,c.height);}
-		clr('#ltools'),clr('#rtools');return
-	}
-	const toolbar=(element,render,behavior)=>{
+	if(!toolbars_enable)return
+	const enable=uimode!='script'&&!deck.locked
+	const enable_left=enable&&!ms.type&&!kc.on
+	const enable_right=enable&&((!ms.type)||(wid.fv!=null&&wid.f.style=='rich'))
+	const toolbar=(enable,element,render,behavior)=>{
+		if(!enable){element.getContext('2d').clearRect(0,0,element.width,element.height);return}
 		const c=element.getBoundingClientRect()
 		const pos =rint(rect((ev.rawpos .x-c.x)/tzoom,(ev.rawpos .y-c.y)/tzoom))
 		const dpos=rint(rect((ev.rawdpos.x-c.x)/tzoom,(ev.rawdpos.y-c.y)/tzoom))
@@ -7543,7 +7657,7 @@ toolbars=_=>{
 		const animated=rin(rect(c.x,c.y,c.width,c.height),ev.rawpos)&&dr.show_anim?(0|(frame_count/4)):0
 		const anim_pattern=(pix,x,y)=>pix<28||pix>31?pix: anim[pix-28][animated%max(1,anim[pix-28].length)]
 		const draw_pattern=(pix,x,y)=>pix<2?(pix?1:0): pix>31?(pix==32?0:1): pal_pat(pal,pix,x,y)&1
-		const draw_color  =(pix,x,y)=>pix>47?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
+		const draw_color  =(pix,x,y)=>pix>=32+PAL_COLORS?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
 		const data=tid.data;for(let z=0,d=0,y=0;y<tid.height;y++)for(let x=0;x<tid.width;x++,z++){
 			const pix=tfb.pix[z], a=anim_pattern(pix,x,y), c=draw_color(a,x,y), cv=COLORS[c]
 			data[d++]=0xFF&(cv>>16),data[d++]=0xFF&(cv>>8),data[d++]=0xFF&(cv),data[d++]=0xFF
@@ -7580,10 +7694,21 @@ toolbars=_=>{
 		setmode('draw');if(dr.tool=='select'||dr.tool=='lasso'||dr.tool=='fill')settool('pencil');dr.brush=brush
 	}
 	const palbtn=(pos,dn,b,pattern)=>{
+		if(wid.fv){
+			draw_rect(b,pattern)
+			const canpat=(wid.cursor.x!=wid.cursor.y)&&(wid.f.style=='rich')
+			if(rin(b,pos)){if(canpat)uicursor=cursor.point;if(ev.md&&rin(b,dn)){if(canpat)field_patspan(pattern);ev.md=0}}
+			draw_box(b,0,1);return
+		}
+		if(uimode=='object'){
+			draw_rect(b,pattern)
+			if(ob.sel&&ob.sel.length&&rin(b,pos)){uicursor=cursor.point;if(ev.mu&&rin(b,dn)){ob_edit_prop('pattern',lmn(pattern)),ev.mu=0}}
+			draw_box(b,0,1);return
+		}
 		if((dr.pickfill?dr.fill:dr.pattern)==pattern){draw_rect(inset(b,3),pattern),draw_box(inset(b,3),0,1)}else{draw_rect(b,pattern)}
 		if(rin(b,pos)){uicursor=cursor.point;if(ev.mu&&rin(b,dn)){if(dr.pickfill){dr.fill=pattern}else{dr.pattern=pattern}}}draw_box(b,0,1)
 	}
-	toolbar(q('#ltools'),q('#lrender'),(pos,dn)=>{
+	toolbar(enable_left,q('#ltools'),q('#lrender'),(pos,dn)=>{
 		const bs=deck.brushes,bt=deck.brusht,th=count(bs)?17:tcellh;toolbar_scroll=clamp(0,toolbar_scroll,count(bs))
 		draw_rect(rect(0,6*tcellh,toolsize.x,tgap),1)
 		if(toolbtn(pos,dn,rect(0     ,0,tcellw+1,tcellh+1),0,uimode=='interact'))setmode('interact'),ev.mu=ev.md=0
@@ -7605,12 +7730,20 @@ toolbars=_=>{
 			if(toolbar_scroll<count(bs))if(scrollbtn(pos,dn,rect(tcellw,cy,tcellw+1,toolsize.y-cy),1))toolbar_scroll++
 		}
 	})
-	toolbar(q('#rtools'),q('#rrender'),(pos,dn)=>{
+	toolbar(enable_right,q('#rtools'),q('#rrender'),(pos,dn)=>{
 		draw_rect(rect(0,16*tcellh,toolsize.x,tgap),1)
-		if(modebtn(pos,dn,rect(0,0     ,tcellw*2+1,tcellh+1),'Stroke',dr.pickfill==0))dr.pickfill=0
-		if(modebtn(pos,dn,rect(0,tcellh,tcellw*2+1,tcellh+1),'Fill'  ,dr.pickfill==1))dr.pickfill=1
-		if(dr.color){for(let z=0;z<16 ;z++)palbtn(pos,dn,rect(0,(2*tcellh)+z*tcellh,2*tcellw+1,tcellh+1),(z>=2?31:0)+z)}
-		else        {for(let z=0;z<4*8;z++)palbtn(pos,dn,rect((z%2)*tcellw,(2*tcellh)+(0|(z/2))*tcellh+(z>=28?tgap:0),tcellw+1,tcellh+1),patorder[z])}
+		if(wid.fv){
+			const b=rect(1,1,tcellw*2-1,tcellh*2-1)
+			draw_rect(b,1),draw_box(b,0,13);if(rin(b,pos)&&rin(b,dn)&&ev.md)ev.md=0
+		}else{
+			if(modebtn(pos,dn,rect(0,0     ,tcellw*2+1,tcellh+1),'Stroke',dr.pickfill==0))dr.pickfill=0
+			if(modebtn(pos,dn,rect(0,tcellh,tcellw*2+1,tcellh+1),'Fill'  ,dr.pickfill==1))dr.pickfill=1
+		}
+		if(!dr.color){for(let z=0;z<4*8;z++)palbtn(pos,dn,rect((z%2)*tcellw,(2*tcellh)+(0|(z/2))*tcellh+(z>=28?tgap:0),tcellw+1,tcellh+1),patorder[z])}
+		else{
+			if(PAL_COLORS<=16){for(let z=0;z<16                ;z++)palbtn(pos,dn,rect(0,(2*tcellh)+z*tcellh,2*tcellw+1,tcellh+1),(z>=2?31:0)+z)}
+			else              {for(let z=0;z<min(PAL_COLORS,32);z++)palbtn(pos,dn,rect((0|(z/16))*tcellw,(2*tcellh)+(z%16)*tcellh,tcellw+1,tcellh+1),(z>=2?31:0)+(z>=16?1:0)+z)}
+		}
 	})
 }
 
@@ -7800,7 +7933,17 @@ all_menus=_=>{
 		if(menu_item('Resources...' ,1,   ))modal_enter('resources')
 		if(menu_item('Properties...',1,   ))modal_enter('deck_props')
 	}
-	if(ms.type==null||wid.gv||wid.fv){
+	if(ms.type=='prototype_attrs'){
+		menu_bar('Edit',1)
+		if(menu_item('Move Attribute Up',ms.grid.row>0)){
+			ms.grid.table=table_swap_rows(ms.grid.table,ms.grid.row-1,ms.grid.row),ms.grid.row--
+		}
+		if(menu_item('Move Attribute Down',ms.grid.row>=0&&ms.grid.row<tab_rowcount(ms.grid.table)-1)){
+			ms.grid.table=table_swap_rows(ms.grid.table,ms.grid.row+1,ms.grid.row),ms.grid.row++
+		}
+		if(wid.fv){menu_separator(),text_edit_menu()}
+	}
+	else if(ms.type==null||wid.gv||wid.fv){
 		menu_bar("Edit",wid.gv||wid.fv||(ms.type==null&&uimode=='interact')||uimode=='draw'||uimode=='object')
 		if(wid.gv){
 			const mutable=!wid.g.locked&&ms.type==null
@@ -7820,8 +7963,9 @@ all_menus=_=>{
 			if(menu_item('Redo',has_redo(),'Z'))redo()
 			menu_separator()
 			if(menu_item('Paste',1,'v',menupaste)){}
+			if(menu_item('Paste as new Canvas',1,0,pasteascanvas)){}
 		}
-		if(ms.type==null&&uimode=='draw'){
+		else if(ms.type==null&&uimode=='draw'){
 			const sel=bg_has_sel()||bg_has_lasso()
 			if(menu_item('Undo',(!sel)&&has_undo(),'z'))undo()
 			if(menu_item('Redo',(!sel)&&has_redo(),'Z'))redo()
@@ -7829,6 +7973,7 @@ all_menus=_=>{
 			if(menu_item('Cut Image',sel,0,menucut)){}
 			if(menu_item('Copy Image',sel,0,menucopy)){}
 			if(menu_item('Paste',1,'v',menupaste)){}
+			if(menu_item('Paste as new Canvas',1,0,pasteascanvas)){}
 			if(menu_item('Clear',1)){const t=dr.tool;if(!sel){settool('select'),dr.sel_here=rcopy(con_dim())}bg_delete_selection(),settool(t)}
 			menu_separator()
 			if(menu_item('Select All',1,'a')){settool('select'),dr.sel_here=rcopy(con_dim())}
@@ -7872,7 +8017,7 @@ all_menus=_=>{
 				if(menu_item('Darken  Image',dr.dither_threshold< 2.0))dr.dither_threshold+=.1
 			}
 		}
-		if(ms.type==null&&uimode=='object'){
+		else if(ms.type==null&&uimode=='object'){
 			if(menu_item('Undo',has_undo(),'z'))undo()
 			if(menu_item('Redo',has_redo(),'Z'))redo()
 			menu_separator()
@@ -7880,7 +8025,6 @@ all_menus=_=>{
 			if(menu_item('Copy Widgets',ob.sel.length,'c',menucopy)){}
 			if(menu_item('Copy Image',ob.sel.length==1,0,copywidgetimg)){}
 			if(menu_item('Paste',1,'v',menupaste)){}
-			menu_separator()
 			if(menu_item('Paste as new Canvas',1,0,pasteascanvas)){}
 			if(menu_item('Paste into Canvas',ob.sel.length==1&&canvas_is(ob.sel[0]),0,pasteintocanvas)){}
 			menu_separator()
@@ -7913,7 +8057,7 @@ all_menus=_=>{
 			}
 		}
 	}
-	if(ms.type=='recording'&&!wid.fv){
+	else if(ms.type=='recording'&&!wid.fv){
 		menu_bar('Edit',au.mode=='stopped')
 		if(menu_item('Undo',au.hist_cursor>0             ,'z'))sound_undo()
 		if(menu_item('Redo',au.hist_cursor<au.hist.length,'Z'))sound_redo()
@@ -7989,16 +8133,6 @@ all_menus=_=>{
 			dr.fatbits^=1;if(dr.fatbits)center_fatbits(rcenter(bg_has_sel()||bg_has_lasso()?dr.sel_here:con_dim(),rect()))
 		}
 	}
-	if(uimode=='draw'){
-		menu_bar('Style',ms.type==null&&!kc.on)
-		if(menu_item('Stroke...',1))modal_enter('pattern')
-		if(menu_item('Fill...'  ,1))modal_enter('fill'   )
-		if(menu_item('Brush...' ,1))modal_enter('brush'  )
-		menu_separator()
-		if(menu_check('Color'       ,1,dr.color))dr.color^=1
-		if(menu_check('Transparency',1,dr.trans))dr.trans^=1
-		if(menu_check('Underpaint'  ,1,dr.under))dr.under^=1
-	}
 	if(uimode=='object'){
 		menu_bar('Widgets',ms.type==null)
 		if(menu_item('New Button',1))ob_create([lmd([lms('type')],[lms('button')])])
@@ -8044,6 +8178,19 @@ all_menus=_=>{
 		}
 		menu_separator()
 		if(menu_item('Evaluate',rtext_len(ms.text.table)))listener_eval()
+	}
+	if(uimode=='draw'||uimode=='object'){
+		menu_bar('Style',ms.type==null&&!kc.on)
+		if(uimode=='draw'){
+			if(menu_item('Stroke...',1))modal_enter('pattern')
+			if(menu_item('Fill...'  ,1))modal_enter('fill'   )
+			if(menu_item('Brush...' ,1))modal_enter('brush'  )
+			menu_separator()
+		}
+		if(menu_check('Color'       ,1,dr.color))dr.color^=1
+		if(menu_check('Transparency',1,dr.trans))dr.trans^=1
+		menu_separator()
+		if(menu_check('Underpaint'  ,1,dr.under))dr.under^=1
 	}
 	menu_bar('Help',1)
 	if(menu_item('Decker Website...'  ,1))n_go([lms('http://beyondloom.com/decker/index.html'          )],deck)
@@ -8171,7 +8318,7 @@ load_deck=d=>{
 }
 tick=_=>{
 	pointer.up=ev.mu,pointer.down=ev.md,gamepad_poll(),toolbars()
-	msg.pending_drag=0,msg.pending_halt=0,frame=context,uicursor=0,fb.pix.fill(0)
+	pointer_updated=0,msg.pending_halt=0,frame=context,uicursor=0,fb.pix.fill(0)
 	menu_setup(),all_menus(),widget_setup()
 	const ev_stash=ev;kc.heading=null;if(kc.on)ev=event_state()
 	if(uimode=='script'){const mh=3+font_h(FONT_MENU);if(!kc.on)script_editor(rect(0,mh,frame.size.x+1,frame.size.y-mh))}else{main_view()}
@@ -8224,7 +8371,7 @@ sync=_=>{
 	const anim_ants   =(x,y)=>(0|((x+y+(0|(frame_count/2)))/3))%2?15:0
 	const anim_pattern=(pix,x,y)=>pix<28||pix>31?pix: anim[pix-28][fc%max(1,anim[pix-28].length)]
 	const draw_pattern=(pix,x,y)=>pix<2?(pix?1:0): pix>31?(pix==32?0:1): pal_pat(pal,pix,x,y)&1
-	const draw_color  =(pix,x,y)=>pix==ANTS?anim_ants(x,y): pix>47?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
+	const draw_color  =(pix,x,y)=>pix==ANTS?anim_ants(x,y): pix>=32+PAL_COLORS?0: pix>31?pix-32: draw_pattern(pix,x,y)?15:0
 	if(!id||id.width!=fb.size.x||id.height!=fb.size.y){id=new ImageData(fb.size.x,fb.size.y);id.data.fill(0xFF)}
 	for(let z=0,d=0,y=0;y<id.height;y++)for(let x=0;x<id.width;x++,z++,d+=4){
 		const pix=fb.pix[z], a=anim_pattern(pix,x,y), c=(a==0&&mask)?13:draw_color(a,x,y), cv=COLORS[c]
@@ -8236,7 +8383,8 @@ sync=_=>{
 	const g=q('#display').getContext('2d');g.imageSmoothingEnabled=zoom!=(0|zoom),g.save(),g.scale(zoom,zoom),g.drawImage(r,0,0),g.restore()
 }
 
-move=(x,y)=>{if(!msg.pending_drag)pointer.prev=pointer.pos;pointer.pos=ev.pos=rect(x,y);if(pointer.held)msg.pending_drag=1}
+let pointer_updated=0
+move=(x,y)=>{if(!pointer_updated)pointer.prev=pointer.pos;pointer.pos=ev.pos=rect(x,y);pointer_updated=1}
 down=(x,y,alt)=>{
 	ev.rawdpos=ev.rawpos,ev.down_modal=ms.type,ev.down_uimode=uimode,ev.down_caps=kc.on
 	move(x,y),pointer.held=ev.drag=1;pointer.start=ev.dpos=pointer.pos,ev.md=1,ev.clicktime=12;if(alt)ev.rdown=1;initaudio()}
@@ -8452,7 +8600,7 @@ q('body').ondrop=e=>{
 				})
 				iwrite(deck.patterns,lmn(47),pal[a]),iwrite(deck.patterns,lmn(32),pal[b])
 				pal=pal.filter((_,i)=>i!=a&&i!=b)
-			}for(let z=0;z<15&&z<pal.length;z++)iwrite(deck.patterns,lmn(33+z),pal[z])
+			}for(let z=0;z<PAL_COLORS-2&&z<pal.length;z++)iwrite(deck.patterns,lmn((33+z)+(z>=15?1:0)),pal[z])
 		})
 	}
 	if(/^image\//.test(file.type)){load_image(file)}
@@ -8460,7 +8608,7 @@ q('body').ondrop=e=>{
 }
 
 pushstate(lmenv()),load_deck(deck_read(q('script[language="decker"]').innerText))
-const tag=decodeURI(document.URL.split('#')[1]||'');if(tag.length)iwrite(deck,lms('card'),lms(tag))
+const tag=decodeURI((new URL(document.URL)).hash.slice(1)||'');if(tag.length)iwrite(deck,lms('card'),lms(tag))
 resize(),requestAnimationFrame(loop)
 </script>
 </body>
