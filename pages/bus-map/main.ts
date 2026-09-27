@@ -1,15 +1,16 @@
 import "./style.css";
 import { getBusLocation, getBusSvg } from "./util";
 
-// typing import for cdn based library
-const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
-
-(() => {
+(async () => {
   const mapElem = document.querySelector<HTMLElement>(".map");
   if (!mapElem) {
     console.error("unable to find map element");
     return;
   }
+
+  const maplibregl =
+    // @ts-expect-error maplibre-gl is loaded from the CDN
+    (await import("https://cdn.jsdelivr.net/npm/maplibre-gl@6.9.0/dist/maplibre-gl.mjs")) as typeof import("maplibre-gl");
 
   // https://maps.app.goo.gl/8DLumLtUiaHeW1Kk6
   const center: [number, number] = [101.6417106035067, 3.2199094390155625];
@@ -56,7 +57,7 @@ const maplibregl = (window as any).maplibregl as typeof import("maplibre-gl");
 
   // marker caching
   type BusMarkerModel = {
-    marker: maplibregl.Marker;
+    marker: InstanceType<typeof maplibregl.Marker>;
     iconElem: HTMLDivElement;
   };
 
