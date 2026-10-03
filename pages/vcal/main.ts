@@ -138,7 +138,7 @@ function root() {
       const domArgs = { format: "png", scale: 2, filename: "calendar", backgroundColor: "#fff" };
 
       if (canShareFile) {
-        const blob = snapdom.toBlob(dom, domArgs);
+        const blob = await snapdom.toBlob(dom, domArgs);
         const file = new File([blob], "calendar.png", { type: "image/png" });
 
         try {
@@ -152,7 +152,7 @@ function root() {
           console.error(err);
         }
       } else {
-        snapdom.download(dom, domArgs);
+        await snapdom.download(dom, domArgs);
       }
     },
   };
