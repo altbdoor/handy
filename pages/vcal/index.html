@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="last-modified" content="__LAST_DATE__" />
+
+    <title>vcal</title>
+    __FAVICON:📅__
+  </head>
+  <body>
+    <div class="container" x-data="root">
+      <div class="container__snap">
+        <div class="container__title">
+          <strong x-text="months[monthIdx] + ' ' + year"></strong>
+        </div>
+
+        <div class="container__table" :style="{ '--column-count': columnCount }">
+          <template x-for="day in weekdays">
+            <div>
+              <div x-text="day" class="container__table-weekday"></div>
+              <template x-for="date in weekMap[day]">
+                <div
+                  class="container__table-day"
+                  :class="date === null ? 'container__table-day--disabled' : 'container__table-day--hover'"
+                  @click="toggleActiveDate(date)"
+                >
+                  <div
+                    class="container__table-day-item"
+                    :class="activeDates.includes(date) ? 'container__table-day-item--active' : ''"
+                    x-text="date"
+                  ></div>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="container__form">
+        <div class="container__form-move">
+          <button type="button" @click="goMonth(1)">&laquo; Prev</button>
+          <button type="button" @click="goMonth(-1)">Next &raquo;</button>
+          <button type="button" @click="reset()">Reset</button>
+          <button type="button" @click="share()">Share</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/pages/vcal/main.ts"></script>
+  </body>
+</html>

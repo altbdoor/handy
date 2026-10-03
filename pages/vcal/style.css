@@ -1,0 +1,115 @@
+@import "normalize.css/normalize.css";
+
+html {
+  font-family: Times, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.container__title {
+  font-size: 1.4rem;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.container__table {
+  display: grid;
+  grid-template-columns: min-content repeat(var(--column-count), minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 2px;
+  background-color: #000;
+  border: 1px solid #000;
+  box-shadow: 0 0 4px 0 #000;
+  line-height: 1;
+}
+
+.container__table > div {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+
+/* weekend special style */
+.container__table > div:first-of-type {
+  & > .container__table-weekday {
+    background-color: #c62828;
+  }
+
+  & > .container__table-day {
+    background-color: #ffebee;
+  }
+}
+
+.container__table > div:last-of-type {
+  & > .container__table-weekday {
+    background-color: #ef6c00;
+  }
+  & > .container__table-day {
+    background-color: #fff3e0;
+  }
+}
+
+.container__table-weekday {
+  text-align: center;
+  background-color: #424242;
+  color: #fff;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 0.5rem 0.1rem;
+  text-shadow: -2px 0 2px #000;
+}
+
+.container__table-day {
+  padding: 0.1rem;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container__table-day--disabled {
+  background-color: #bdbdbd !important;
+  cursor: not-allowed;
+}
+
+.container__table-day--hover {
+  background-color: #fafafa;
+  cursor: pointer;
+}
+
+.container__table-day-item {
+  width: 2ch;
+  height: 2ch;
+  padding: 0.4rem;
+  border-radius: 50%;
+  text-align: center;
+}
+
+.container__table-day-item--active {
+  background-color: #0277bd;
+  color: #fff;
+  text-shadow: 0 2px 2px #000;
+  font-weight: 700;
+}
+
+.container__form {
+  padding: 3rem 0.5rem 1rem;
+  font-size: 1.4rem;
+}
+
+.container__form-move {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+}
+
+.container__form-move > button {
+  padding: 0.5rem 1rem;
+}
