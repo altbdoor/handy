@@ -135,11 +135,17 @@ function root() {
       // @ts-expect-error load snapdom from cdn
       const { snapdom } = await import("https://cdn.jsdelivr.net/npm/@zumer/snapdom@3.2.0/+esm");
       const dom = document.querySelector(".container__snap")!;
-      const domArgs = { format: "png", scale: 2, filename: "calendar", backgroundColor: "#fff" };
+      const domArgs = {
+        format: "jpg",
+        quality: 0.95,
+        scale: 2,
+        filename: "calendar",
+        backgroundColor: "#fff",
+      };
 
       if (canShareFile) {
         const blob = await snapdom.toBlob(dom, domArgs);
-        const file = new File([blob], "calendar.png", { type: "image/png" });
+        const file = new File([blob], "calendar.jpg", { type: "image/jpeg" });
 
         try {
           await navigator.share({ files: [file] });
