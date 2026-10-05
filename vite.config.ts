@@ -7,6 +7,7 @@ import { defineConfig } from "vite";
 const pagesDir = resolve(import.meta.dirname, "pages");
 
 const pagesValidDirs = readdirSync(pagesDir)
+  .filter((name) => !name.startsWith("_"))
   .filter((name) => {
     return existsSync(join(pagesDir, name, "index.html"));
   })

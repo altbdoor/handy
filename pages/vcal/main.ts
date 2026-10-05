@@ -1,6 +1,8 @@
 import "./style.css";
 import Alpine from "alpinejs";
 
+import { type UrlParams, urlParams } from "../_utils/alpine-url-params";
+
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const months = [
   "January",
@@ -26,6 +28,8 @@ const canShareFile =
 
 function root() {
   return {
+    snapdom: undefined as any,
+
     weekdays,
     months,
 
@@ -35,23 +39,30 @@ function root() {
     weekMap: {} as { [key: string]: (number | null)[] },
     columnCount: 0,
 
-    getParams() {
-      const url = new URL(location.href);
+    get self() {
+      // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+      type ReAlpine = Alpine.XDataContext &
+        Alpine.Magics<{}> & { $store: { urlParams: UrlParams } };
+      return this as unknown as ReAlpine;
+    },
 
-      const monthIdxVal = url.searchParams.get("month") || String(today.getMonth() + 1);
-      const yearVal = url.searchParams.get("year") || String(today.getFullYear());
+    getParsedParams() {
+      const params = this.self.$store.urlParams.params;
+
+      const monthIdxVal = params.month || String(today.getMonth() + 1);
+      const yearVal = params.year || String(today.getFullYear());
 
       const monthIdx = parseInt(monthIdxVal, 10) - 1;
       const year = parseInt(yearVal, 10);
 
-      const datesVal = (url.searchParams.get("dates") || "").split(",");
+      const datesVal = (params.dates || "").split(",");
       const dates = datesVal.filter(Boolean).map((val) => parseInt(val, 10));
 
-      return { url, monthIdx, year, dates };
+      return { monthIdx, year, dates };
     },
 
-    syncParams() {
-      const { monthIdx, year, dates } = this.getParams();
+    syncParamsToData() {
+      const { monthIdx, year, dates } = this.getParsedParams();
 
       this.monthIdx = monthIdx;
       this.year = year;
@@ -89,7 +100,12 @@ function root() {
     },
 
     async init() {
-      this.syncParams();
+      this.self.$watch("$store.urlParams.params", () => this.syncParamsToData());
+      this.syncParamsToData();
+
+      // @ts-expect-error load snapdom from cdn
+      const { snapdom } = await import("https://cdn.jsdelivr.net/npm/@zumer/snapdom@3.2.0/+esm");
+      this.snapdom = snapdom;
     },
 
     toggleActiveDate(nextVal: number | null) {
@@ -97,7 +113,7 @@ function root() {
         return;
       }
 
-      const { url, dates } = this.getParams();
+      const { dates } = this.getParsedParams();
       let nextDates = [...dates];
 
       if (nextDates.includes(nextVal)) {
@@ -106,34 +122,26 @@ function root() {
         nextDates = [...nextDates, nextVal];
       }
 
-      url.searchParams.set("dates", nextDates.sort((a, b) => a - b).join(","));
-      history.replaceState({}, "", url);
-      this.syncParams();
+      this.self.$store.urlParams.update({ dates: nextDates.sort((a, b) => a - b).join(",") });
     },
 
     goMonth(val: number) {
-      const { url, monthIdx, year } = this.getParams();
+      const { monthIdx, year } = this.getParsedParams();
       const currentDate = new Date(year, monthIdx, 1);
       currentDate.setMonth(currentDate.getMonth() - val);
 
-      url.searchParams.set("month", String(currentDate.getMonth() + 1));
-      url.searchParams.set("year", String(currentDate.getFullYear()));
-      url.searchParams.delete("dates");
-
-      history.replaceState({}, "", url);
-      this.syncParams();
+      this.self.$store.urlParams.update({
+        month: String(currentDate.getMonth() + 1),
+        year: String(currentDate.getFullYear()),
+        dates: null,
+      });
     },
 
     reset() {
-      const { url } = this.getParams();
-      url.search = "";
-      history.replaceState({}, "", url);
-      this.syncParams();
+      this.self.$store.urlParams.set({});
     },
 
     async share() {
-      // @ts-expect-error load snapdom from cdn
-      const { snapdom } = await import("https://cdn.jsdelivr.net/npm/@zumer/snapdom@3.2.0/+esm");
       const dom = document.querySelector(".container__snap")!;
       const domArgs = {
         format: "jpg",
@@ -144,7 +152,7 @@ function root() {
       };
 
       if (canShareFile) {
-        const blob = await snapdom.toBlob(dom, domArgs);
+        const blob = await this.snapdom.toBlob(dom, domArgs);
         const file = new File([blob], "calendar.jpg", { type: "image/jpeg" });
 
         try {
@@ -158,11 +166,12 @@ function root() {
           console.error(err);
         }
       } else {
-        await snapdom.download(dom, domArgs);
+        await this.snapdom.download(dom, domArgs);
       }
     },
   };
 }
 
+Alpine.plugin(urlParams);
 Alpine.data("root", root);
 Alpine.start();
