@@ -109,7 +109,7 @@ end
 export const undoRedoControls = `
 button3:{"type":"button","size":[60,20],"pos":[225,302],"script":"main.6","text":"Undo"}
 button21:{"type":"button","size":[60,20],"pos":[225,322],"script":"main.12","text":"Redo"}
-cursor:{"type":"slider","size":[60,10],"pos":[225,292],"interval":[0,16],"style":"compact","show":"none"}
+cursor:{"type":"slider","size":[60,10],"pos":[225,292],"interval":[0,3],"style":"compact","show":"none"}
 `.trim();
 
 export const undoRedoScript = `
