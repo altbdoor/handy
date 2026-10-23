@@ -42,7 +42,7 @@ jobs:
           done
 
           CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          grep -rl 'CURRENT_DATE' . | xargs sed -i "s|__CURRENT_DATE__|$CURRENT_DATE|g"
+          grep --recursive --files-with-matches --include '*.html' '__CURRENT_DATE__' . | xargs sed -i "s|__CURRENT_DATE__|$CURRENT_DATE|g"
 
       - run: |
           npm ci
