@@ -92,8 +92,9 @@ export default defineConfig({
           const pagesLinks = pagesValidDirs.map((dir) => {
             return `
               <li>
+                📂
                 <a href="./${basename(pagesDir)}/${dir}/">
-                  ${dir}
+                  ${dir}/
                 </a>
               </li>
             `;
