@@ -1,4 +1,20 @@
-import Gtfs from "gtfs-realtime-bindings";
+import { type FeedMessage, type VehiclePosition } from "gtfs-types";
+
+type Vehicle = NonNullable<VehiclePosition["vehicle"]>;
+interface CustomVehicle extends Vehicle {
+  licensePlate?: Vehicle["license_plate"];
+}
+
+type Trip = NonNullable<VehiclePosition["trip"]>;
+interface CustomTrip extends Trip {
+  routeId?: Trip["route_id"];
+}
+
+/** prasarana seems to prefer camelCase over snake_case */
+interface CustomVehiclePosition extends VehiclePosition {
+  trip?: CustomTrip;
+  vehicle?: CustomVehicle;
+}
 
 export type BusLocation = {
   routeId: string;
@@ -9,9 +25,10 @@ export type BusLocation = {
   longitude: number;
 };
 
-export async function getBusLocation(): Promise<BusLocation[]> {
+export async function getBusLocation(Gtfs: any): Promise<BusLocation[]> {
+  // https://developer.data.gov.my/realtime-api/gtfs-realtime#prasarana
   const protoRes = await fetch(
-    "https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-mrtfeeder",
+    "https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana/?category=rapid-bus-mrtfeeder",
   );
 
   if (!protoRes.ok) {
@@ -20,20 +37,25 @@ export async function getBusLocation(): Promise<BusLocation[]> {
   }
 
   const protoData = await protoRes.arrayBuffer();
-  const protoFeed = Gtfs.transit_realtime.FeedMessage.decode(new Uint8Array(protoData));
-
-  const routeIds = ["T114", "T152"];
-  const busRoutes = protoFeed.entity.filter((ent) =>
-    routeIds.includes(ent.vehicle?.trip?.routeId ?? ""),
+  const { entity }: FeedMessage = Gtfs.transit_realtime.FeedMessage.decode(
+    new Uint8Array(protoData),
   );
 
+  const routeIds = ["T114", "T152"];
+  const busRoutes = (entity ?? []).filter((ent) => {
+    const id = (ent.vehicle as CustomVehiclePosition).trip?.routeId;
+    return routeIds.includes(id ?? "");
+  });
+
   return busRoutes.flatMap((datum) => {
-    const routeId = datum.vehicle?.trip?.routeId;
-    const plate = datum.vehicle?.vehicle?.licensePlate;
-    const speed = datum.vehicle?.position?.speed ?? 0;
-    const bearing = datum.vehicle?.position?.bearing ?? 0;
-    const latitude = datum.vehicle?.position?.latitude;
-    const longitude = datum.vehicle?.position?.longitude;
+    const { trip, vehicle, position } = datum.vehicle as CustomVehiclePosition;
+
+    const routeId = trip?.routeId;
+    const plate = vehicle?.licensePlate;
+    const speed = position?.speed ?? 0;
+    const bearing = position?.bearing ?? 0;
+    const latitude = position?.latitude;
+    const longitude = position?.longitude;
 
     if (!routeId || !plate) {
       return [];

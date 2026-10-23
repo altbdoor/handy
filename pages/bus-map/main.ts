@@ -8,9 +8,14 @@ import { getBusLocation, getBusSvg } from "./util";
     return;
   }
 
-  const maplibregl =
+  const [maplibregl, gtfsModule] = await Promise.all([
     // @ts-expect-error maplibre-gl is loaded from the CDN
-    (await import("https://cdn.jsdelivr.net/npm/maplibre-gl@6.9.0/dist/maplibre-gl.mjs")) as typeof import("maplibre-gl");
+    import("https://cdn.jsdelivr.net/npm/maplibre-gl@6.9.0/dist/maplibre-gl.mjs") as typeof import("maplibre-gl"),
+    // @ts-expect-error gtfs is loaded from the CDN
+    import("https://cdn.jsdelivr.net/npm/gtfs-realtime-bindings@2.2.0/+esm"),
+  ]);
+
+  const { default: Gtfs } = gtfsModule;
 
   // https://maps.app.goo.gl/8DLumLtUiaHeW1Kk6
   const center: [number, number] = [101.6417106035067, 3.2199094390155625];
@@ -62,7 +67,7 @@ import { getBusLocation, getBusSvg } from "./util";
   };
 
   const busMarkers = new Map<string, BusMarkerModel>();
-  const refreshMs = 20_000;
+  const refreshMs = 15_000;
   let isPageVisible = !document.hidden;
 
   // skip timers when page is not active
@@ -92,7 +97,7 @@ import { getBusLocation, getBusSvg } from "./util";
       return;
     }
 
-    const busData = await getBusLocation();
+    const busData = await getBusLocation(Gtfs);
     if (busData.length === 0) {
       return;
     }

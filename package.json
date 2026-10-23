@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "alpinejs": "^3.17.4",
-    "gtfs-realtime-bindings": "^1.1.1",
     "normalize.css": "^8.0.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
@@ -23,6 +22,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.2",
+    "gtfs-types": "^5.1.1",
     "maplibre-gl": "^6.9.0",
     "oxfmt": "^0.72.0",
     "oxlint": "^1.87.0",
