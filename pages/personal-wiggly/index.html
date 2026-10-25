@@ -10,6 +10,7 @@
     <style>
       html {
         --base-size: 1030px;
+        --overlay-color: red;
       }
 
       body {
@@ -54,7 +55,7 @@
       .overlay span {
         border-width: 0 0 1px 1px;
         border-style: dashed;
-        border-color: red;
+        border-color: var(--overlay-color);
       }
 
       iframe {
@@ -90,6 +91,7 @@
       <div class="controls">
         <button type="button" class="rotate" data-val="+90">Rotate R</button>
         <button type="button" class="rotate" data-val="-90">Rotate L</button>
+        <button type="button" class="toggle-overlay">Overlay</button>
       </div>
     </div>
 
@@ -114,6 +116,13 @@
           overlay.style.transform = `translate(-50%, -50%) rotate(${rotateNext}deg)`;
         };
       });
+
+      document.querySelector(".toggle-overlay").onclick = () => {
+        const val = getComputedStyle(document.documentElement).getPropertyValue("--overlay-color");
+
+        const nextVal = val === "transparent" ? "red" : "transparent";
+        document.documentElement.style.setProperty("--overlay-color", nextVal);
+      };
     </script>
   </body>
 </html>
