@@ -9,8 +9,17 @@
     __FAVICON:🎨__
     <style>
       html {
-        --base-size: 1030px;
         --overlay-color: red;
+        --overlay-factor: 1;
+        --base-width: 515px;
+        --base-height: 345px;
+        --frame-size: calc(var(--base-width) * var(--overlay-factor));
+      }
+
+      @media (min-width: 1024px) {
+        html {
+          --overlay-factor: 2;
+        }
       }
 
       body {
@@ -29,8 +38,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: var(--base-size);
-        height: 690px;
+        width: calc(var(--base-width) * var(--overlay-factor));
+        height: calc(var(--base-height) * var(--overlay-factor));
         transition: transform 0.2s ease;
         z-index: 100;
         pointer-events: none;
@@ -41,12 +50,12 @@
         height: 100%;
       }
       .overlay > div > div {
-        --side-gap: 20px;
+        --side-gap: calc(10px * var(--overlay-factor));
         position: absolute;
-        top: 47px;
-        left: 13px;
-        width: calc(355px * 2);
-        height: calc(261px * 2);
+        top: calc(23px * var(--overlay-factor));
+        left: calc(6px * var(--overlay-factor));
+        width: calc(355px * var(--overlay-factor));
+        height: calc(261px * var(--overlay-factor));
         z-index: 200;
         display: grid;
         grid-template-columns: var(--side-gap) repeat(3, 1fr) var(--side-gap);
@@ -61,8 +70,8 @@
       iframe {
         display: block;
         border: 0;
-        width: var(--base-size);
-        height: var(--base-size);
+        width: var(--frame-size);
+        height: var(--frame-size);
         transition: transform 0.2s ease;
         margin: 0 auto;
       }
