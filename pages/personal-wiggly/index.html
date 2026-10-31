@@ -14,6 +14,7 @@
         --base-width: 515px;
         --base-height: 345px;
         --frame-size: calc(var(--base-width) * var(--overlay-factor));
+        --rotation: 0deg;
       }
 
       @media (min-width: 1024px) {
@@ -37,7 +38,7 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) rotate(var(--rotation));
         width: calc(var(--base-width) * var(--overlay-factor));
         height: calc(var(--base-height) * var(--overlay-factor));
         transition: transform 0.2s ease;
@@ -73,6 +74,7 @@
         width: var(--frame-size);
         height: var(--frame-size);
         transition: transform 0.2s ease;
+        transform: rotate(var(--rotation));
         margin: 0 auto;
       }
 
@@ -96,7 +98,7 @@
   <body>
     <div class="container">
       <div class="overlay"></div>
-      <iframe src="./paint.html#main" frameborder="0" style="transform: rotate(0deg)"></iframe>
+      <iframe src="./paint.html#main" frameborder="0"></iframe>
       <div class="controls">
         <button type="button" class="rotate" data-val="+90">Rotate R</button>
         <button type="button" class="rotate" data-val="-90">Rotate L</button>
@@ -112,22 +114,22 @@
         </div>
       `;
 
+      const getCss = (varName) =>
+        getComputedStyle(document.documentElement).getPropertyValue(varName);
+
       [...document.querySelectorAll(".rotate")].forEach((btn) => {
         btn.onclick = () => {
-          const frame = document.querySelector("iframe");
-
-          const styleRotate = frame.style.transform.replace(/[^0-9]/g, "");
-          const styleRotateInt = parseInt(styleRotate, 10);
+          const val = getCss("--rotation");
+          const valInt = parseInt(val, 10) || 0;
 
           const nextRotate = parseInt(btn.getAttribute("data-val"), 10);
-          const rotateNext = styleRotateInt + nextRotate;
-          frame.style.transform = `rotate(${rotateNext}deg)`;
-          overlay.style.transform = `translate(-50%, -50%) rotate(${rotateNext}deg)`;
+          const rotateNext = valInt + nextRotate;
+          document.documentElement.style.setProperty("--rotation", `${rotateNext}deg`);
         };
       });
 
       document.querySelector(".toggle-overlay").onclick = () => {
-        const val = getComputedStyle(document.documentElement).getPropertyValue("--overlay-color");
+        const val = getCss("--overlay-color");
 
         const nextVal = val === "transparent" ? "red" : "transparent";
         document.documentElement.style.setProperty("--overlay-color", nextVal);
