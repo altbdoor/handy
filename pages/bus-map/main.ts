@@ -10,7 +10,7 @@ import { getBusLocation, getBusSvg } from "./util";
 
   const [maplibregl, gtfsModule] = await Promise.all([
     // @ts-expect-error maplibre-gl is loaded from the CDN
-    import("https://cdn.jsdelivr.net/npm/maplibre-gl@6.9.0/dist/maplibre-gl.mjs") as typeof import("maplibre-gl"),
+    import("https://cdn.jsdelivr.net/npm/maplibre-gl@6.16.0/dist/maplibre-gl.mjs") as typeof import("maplibre-gl"),
     // @ts-expect-error gtfs is loaded from the CDN
     import("https://cdn.jsdelivr.net/npm/gtfs-realtime-bindings@2.2.0/+esm"),
   ]);
@@ -50,7 +50,6 @@ import { getBusLocation, getBusSvg } from "./util";
       const layerId = layer.id.toLowerCase();
       if (layerId.startsWith("poi")) {
         map.setLayoutProperty(layer.id, "visibility", "none");
-        return;
       }
 
       // console.log(layerId)
@@ -67,7 +66,7 @@ import { getBusLocation, getBusSvg } from "./util";
   };
 
   const busMarkers = new Map<string, BusMarkerModel>();
-  const refreshMs = 15_000;
+  const refreshMs = 20_000;
   let isPageVisible = !document.hidden;
 
   // skip timers when page is not active

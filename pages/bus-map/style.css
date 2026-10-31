@@ -47,10 +47,11 @@
   background-color: #fff;
   padding: 0.5rem;
   border-radius: 0.5rem 0 0 0.5rem;
+  box-shadow: 0 0 5px 0 #000;
 }
 
 .map__controls > button {
-  padding: 0.2rem;
+  padding: 0.4rem;
 }
 
 .render-map-icon {
