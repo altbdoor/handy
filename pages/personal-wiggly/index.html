@@ -34,14 +34,22 @@
         overflow: hidden;
       }
 
+      .rotation {
+        position: relative;
+        width: var(--frame-size);
+        height: var(--frame-size);
+        margin: 0 auto;
+        transform: rotate(var(--rotation));
+        transition: transform 0.2s ease;
+      }
+
       .overlay {
         position: absolute;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%) rotate(var(--rotation));
+        transform: translate(-50%, -50%);
         width: calc(var(--base-width) * var(--overlay-factor));
         height: calc(var(--base-height) * var(--overlay-factor));
-        transition: transform 0.2s ease;
         z-index: 100;
         pointer-events: none;
       }
@@ -53,7 +61,7 @@
       .overlay > div > div {
         --side-gap: calc(10px * var(--overlay-factor));
         position: absolute;
-        top: calc(23px * var(--overlay-factor));
+        top: calc(24px * var(--overlay-factor));
         left: calc(6px * var(--overlay-factor));
         width: calc(355px * var(--overlay-factor));
         height: calc(261px * var(--overlay-factor));
@@ -73,9 +81,6 @@
         border: 0;
         width: var(--frame-size);
         height: var(--frame-size);
-        transition: transform 0.2s ease;
-        transform: rotate(var(--rotation));
-        margin: 0 auto;
       }
 
       .controls {
@@ -97,8 +102,10 @@
 
   <body>
     <div class="container">
-      <div class="overlay"></div>
-      <iframe src="./paint.html#main" frameborder="0"></iframe>
+      <div class="rotation">
+        <div class="overlay"></div>
+        <iframe src="./paint.html#main" frameborder="0"></iframe>
+      </div>
       <div class="controls">
         <button type="button" class="rotate" data-val="+90">Rotate R</button>
         <button type="button" class="rotate" data-val="-90">Rotate L</button>
