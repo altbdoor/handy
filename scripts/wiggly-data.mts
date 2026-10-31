@@ -1,20 +1,20 @@
 const brushMap = {
-  button5: "39",
-  button6: "36",
-  button7: "33",
-  button8: "22",
-  button9: "34",
-  button10: "35",
-  button11: "37",
-  button12: "5",
-  button13: "40",
-  button14: "41",
-  button15: "38",
-  button16: "13",
-  button17: "42",
-  button18: "43",
-  button19: "44",
-  button20: "45",
+  button5: "33",
+  button6: "34",
+  button7: "35",
+  button8: "36",
+  button9: "37",
+  button10: "38",
+  button11: "39",
+  button12: "40",
+  button13: "41",
+  button14: "42",
+  button15: "43",
+  button16: "44",
+  button17: "45", // grays
+  button18: "5", // dark pattern
+  button19: "13", // light pattern
+  button20: undefined, // erase colors
 };
 
 const origin = [416, 160];
@@ -36,8 +36,8 @@ const brushItems = Object.entries(brushMap)
     return {
       ...val,
       pos: [
-        origin[0] + (idx % 4) * (val.size[0] + gap),
-        origin[1] + Math.floor(idx / 4) * (val.size[1] + gap),
+        origin[0] + Math.floor(idx / 4) * (val.size[0] + gap),
+        origin[1] + (idx % 4) * (val.size[1] + gap),
       ],
     };
   })
