@@ -11,22 +11,22 @@
     "lint": "oxlint ."
   },
   "dependencies": {
-    "alpinejs": "^3.17.4",
+    "alpinejs": "^3.17.5",
     "normalize.css": "^8.0.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@types/alpinejs": "^3.17.0",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.2",
     "gtfs-types": "^5.1.1",
     "maplibre-gl": "^6.9.0",
-    "oxfmt": "^0.72.0",
-    "oxlint": "^1.87.0",
+    "oxfmt": "^0.75.0",
+    "oxlint": "^1.90.0",
     "typescript": "~6.0.3",
-    "vite": "^8.3.4"
+    "vite": "^8.3.5"
   }
 }
