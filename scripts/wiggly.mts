@@ -149,6 +149,28 @@ for await (const line of rl) {
     continue;
   }
 
+  // resize old palette and inject new palette
+  if (lineTrim.startsWith("pals:")) {
+    writeLn(newColorPalette);
+
+    const val = JSON.parse(lineTrim.replace("pals:", ""));
+    val.value.name = val.value.name.map((name: string) => name.trim());
+    val.size = [145, 138];
+    val.pos = [140, 169];
+    writeLn(`pals:${JSON.stringify(val)}`);
+    continue;
+  }
+
+  // remove unused marker sizes
+  if (lineTrim.startsWith("markerSizes:")) {
+    const val = JSON.parse(lineTrim.replace("markerSizes:", ""));
+    val.widgets.o.value.text = val.widgets.o.value.text.slice(0, 7);
+    val.widgets.o.value.font = val.widgets.o.value.font.slice(0, 7);
+    val.widgets.o.value.arg = val.widgets.o.value.arg.slice(0, 7);
+    writeLn(`markerSizes:${JSON.stringify(val)}`);
+    continue;
+  }
+
   // https://toyhou.se/~forums/11.general-off-topic/750652.how-to-wigglypaint-ethical-edition-feat-colors?page=3
   // https://ahmwwmaaa.neocities.org/decker/decks/workshop#home
   // https://wigglypaintworkshop.nekoweb.org/
@@ -157,11 +179,6 @@ for await (const line of rl) {
   if (lineTrim === "{script:main.0}") {
     writeLn(newBrushSet);
     writeLn("");
-  }
-
-  // inject new palette
-  if (lineTrim === "{script:options.0}") {
-    writeLn(newColorPalette);
   }
 
   writeLn(line);

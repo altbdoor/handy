@@ -45,41 +45,38 @@ obliterate:{"type":"button","size":[108,30],"pos":[408,311],"script":"main.3","s
 button1:{"type":"button","size":[122,27],"pos":[0,321],"script":"main.4","style":"invisible"}
 button2:{"type":"button","size":[80,21],"pos":[135,324],"script":"main.5","style":"invisible"}
 
-button3:{"type":"button","size":[60,20],"pos":[225,302],"script":"main.6","text":"Undo"}
-button21:{"type":"button","size":[60,20],"pos":[225,322],"script":"main.12","text":"Redo"}
-cursor:{"type":"slider","size":[60,10],"pos":[225,292],"interval":[0,3],"style":"compact","show":"none"}
+buttonleundo:{"type":"button","size":[60,20],"pos":[225,302],"script":"main.6","text":"Undo"}
+buttonleredo:{"type":"button","size":[60,20],"pos":[225,322],"script":"main.customredo","text":"Redo"}
+cursorlestack:{"type":"slider","size":[60,10],"pos":[225,292],"interval":[0,4],"style":"compact","show":"none"}
 
 button4:{"type":"button","size":[56,14],"pos":[156,302],"script":"main.7","font":"mono","text":"options","style":"invisible"}
 history:{"type":"field","size":[23,17],"pos":[1,280],"show":"none","value":{"text":["i","i","i"],"font":["","",""],"arg":[]}}
 hi32:{"type":"contraption","size":[197,33],"pos":[375,249],"script":"main.1","show":"none","def":"popOut","widgets":{"c":{"size":[51,6],"pos":[72,0],"show":"none","image":"%%IMG2ADMABgAcARcAGwEYABsBGAAaAQUgFAAaAQMgAQECIBMADgEPIAIBASAT"},"v":{"size":[60,5],"pos":[210,0],"value":1},"t":{"size":[64,4],"pos":[209,7],"value":"1"},"i":{"size":[66,4],"pos":[209,14],"value":{"text":["","i"],"font":["",""],"arg":["","%%IMG3AKcAIgZAgHBILBqPgaRyyWwuj9CodEqtWq/YbNTJ7Xq/XCh4TC5rz9eyes1uu7/o+HYJqtvv+Px7z+8n5YBESiBJeYaHiImHXIqNjo92SkhjWGV1AZCZmpucnXd+VpaXmJ6lpqeaoFSWpISor7CxkYyKkkVfja2tsql+TrCDm5JqtZGdwaO+yrulyJlvibqPy9RjqM6OXtHYn8a11bh4dG3XheLahH/BdOfM3Ze51Mnsi7pM6ejN5vTbAULYXRBJ6wcG374mn/jpMTeqHS197rL9AcCtnUBvAgvOcshwXsKHC8N5qhjP37+OIS/CIwjSFUeMzvJxDAiRky2KKC0uwlhPZs+cBkMqnKVxJNCSQ0gmU+ny50Nm9kje+xiTKk2jEZEmPYpvJ0+hT+0RhToW5dSuZX/VFDbxZFa0et45VWsQGT27dIN6TDuU7dt+grhKlTv3LF28HfveZSfymFmuRG8dHfwVrOHDDKcqvsfmlNTNJrcWhchIG+fRdaGZUmqViWTUWMHJ7msTMuBbOFt6ni07Fu1voadYc8ybHC9DjXumgR17+PHnrX0mq8QcuvXrkddMD5Qbu/fv+MSQ4Z77L/jzL4Gv8kK+PB/0qYs30eK6vXv5+PHb556/P5vX7O0n4Bn+3TTggUQEAQ=="]}},"s":{"size":[100,5],"pos":[208,20],"value":"1.5"}}}
 sizeLabel:{"type":"field","size":[61,13],"pos":[297,301],"locked":1,"show":"transparent","border":0,"style":"plain","align":"center","value":"marker size"}
-markerSizes:{"type":"contraption","size":[80,34],"pos":[288,314],"script":"main.8","def":"imageEnum","widgets":{"s":{"size":[80,34],"interval":[0,26],"value":4},"c":{"size":[50,30],"image":"%%IMG3ADIAHgKEj6nL7Q+jnLTai2HYnGfbhd4XieZGPueaMuvbJi8cGzNd32wN6Cff84mAwiGvGCIiR7llABhcQp3QqLBqu2Kzty2i65X9wook+YxOq70F"},"o":{"size":[44,31],"pos":[109,-20],"value":{"text":["","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i","i"],"font":["","","","","","","","","","","","","","","","","","","","","","","","","","","",""],"arg":["","%%IMG0AAMAA2DgwA==","%%IMG0AAYABjh8/Pz4cA==","%%IMG0AAgAChw+f//////+/nw=","%%IMG3AA8ADwKEH6nHoB+ag49RaK7evPsPhtWHcM0mTVVTAA==","%%IMG3ABUAFgKEb6G76MBie7IqZ/PJHPIPhuJIluaJpp65kkmJuFj4vF29Wfg84QU=","%%IMG3AB4AHgKEjwnBrZ+anAE+ip09udfteVYYXmSJnGeqoktLGnD8zl1t5/rO9/4PDJaEFaEsePyxegqmKTeybZKu6VJiRRQA","%%IMG2AAUABQEZ","%%IMG2AAsACwF5","%%IMG2ABQAFAH/AZE=","%%IMG0AAcABxA4fP58OBA=","%%IMG0AA8ADwEAA4AHwA/gH/A/+H/8//5//D/4H/AP4AfAA4ABAA==","%%IMG3ABcAFwKEjxDJfQGdNLDOVvNFuW/VeVNISuSJnSinqk/bgnA8u1QtvvjC7OZ8gX1sw9CHZTkilb1LAQ==","%%IMG0AAYABnj8/Pz8eA==","%%IMG3AA4ADgKEEal36mueDHE6ZLPevHuJaZU4TkyZMAU=","%%IMG3ABcAFwKEb6Eb6M6ielBKCqyedV/kbUfoJaSWnerKtu4Lx1b6mrXNdurTYic2KgFBn0cB","%%IMG0AAoACXGA+8D/wP/A/4B/AD4AGAAQAA==","%%IMG3ABYAFAKEERnH3aocfDCamg6eO6MOhuJIlub5nZ7qXShFOq4oa2HNgDhs7fnkk7SCj2AB","%%IMG0AAsACnMA94DngAMAeGD84P7g/sB+ABwA","%%IMG3ABMAEAKEb6GB3aucBDC6dSp7MNX7UZjHaNMXjmYnYibHhq22jTO9wbiF7Gzv4wGFNkMB","%%IMG3AAoACgKMjwHLa90edGoCOTHUseaUFA==","%%IMG3ABMAFAJEjqln6w8jmLTSZfPE2vJ+KWD1jSV4dqm2Zq0njlssv2SE506jMwU=","%%IMG0AAsACwQACgAKABEAEQAggCCAQEBAQIAg/+A=","%%IMG3ABUAFAKEj4HLGdoieFQ2+uyqVRueed0UWuMYoSSUlp+7wS8b04c6Szh+w7xD+/VYQuAMg0wqlMzkqqkEFAA=","%%IMG0AAkACT4AYwDBgICAgICAgMGAYwA+AA==","%%IMG3ABQAFAKED6GLfQuZM7GGCV1GW8v0YVI4gRdZmmhZpU3rPlEsdzGzvgqV87t/Ef1qQc7KMmMhiylYowA=","%%IMG0AAgACIFCJBgYJEKB","%%IMG3ABMAEwJEgKl74QuRay+meWvEijPdgYYYHhL5UaaVeWz7piiEuZtml+m96j4Pe9Vmu17sUAA="]}}}}
+markerSizes:{"type":"contraption","size":[80,34],"pos":[288,314],"script":"main.8","def":"imageEnum","widgets":{"s":{"size":[80,34],"interval":[0,26],"value":4},"c":{"size":[50,30],"image":"%%IMG3ADIAHgKEj6nL7Q+jnLTai2HYnGfbhd4XieZGPueaMuvbJi8cGzNd32wN6Cff84mAwiGvGCIiR7llABhcQp3QqLBqu2Kzty2i65X9wook+YxOq70F"},"o":{"size":[44,31],"pos":[109,-20],"value":{"text":["","i","i","i","i","i","i"],"font":["","","","","","",""],"arg":["","%%IMG0AAMAA2DgwA==","%%IMG0AAYABjh8/Pz4cA==","%%IMG0AAgAChw+f//////+/nw=","%%IMG3AA8ADwKEH6nHoB+ag49RaK7evPsPhtWHcM0mTVVTAA==","%%IMG3ABUAFgKEb6G76MBie7IqZ/PJHPIPhuJIluaJpp65kkmJuFj4vF29Wfg84QU=","%%IMG3AB4AHgKEjwnBrZ+anAE+ip09udfteVYYXmSJnGeqoktLGnD8zl1t5/rO9/4PDJaEFaEsePyxegqmKTeybZKu6VJiRRQA"]}}}}
 toolProps:{"type":"field","size":[21,14],"pos":[33,282],"show":"none","value":"{\"marker\":4,\"eraser\":8}"}
 
-canvas2:{"type":"canvas","size":[144,90],"pos":[410,155],"locked":1,"script":"main.10","border":0,"image":"%%IMG3AJAAcQQwyEmrvTjrzbv/YIaMZGmeaKqubOu+cIwGcm3feK6T9O7/wGCrJywajzYicslsjpTOqNQHnVqvsCp2yzVpu2DsN0yOjsto5DnNDq7bcN17No+z6yW8Pa1H9PdlfX+AYXqDhGB4h4hddYuMXHOPkFtvk5RiLJeYV2ebnFZjn6BTX6OkUlqnqGYzrJhVlhOvZKu0nbestrmpvKS7vk3AwUvDxEfGx0XJym7NjMzPVNKE0dQ51tc32do13N0x3+Av4uND5nfofOpo5eyu74Xx8vON9fb3lfn6+7j9of8ABuw1sFVBJ+7yJby3sF7DeQ/jRXw3kV1FdRfRZTS3cVxHcB+7hdQ28lpJaielpXy2sllLZS+PxSQ2M1hNXzd55cy181ZPWj9fBdV1EGFRYUeZDEW19FfSYk/VREU21UhTUFc5ZYVVdVlXIVsphRhLtqzZs2grMFjLtq3bt3Djyp1Lt67du3jzwk3Lt6/fv4ADCx5MeEIE","scale":1}
-button5:{"type":"button","size":[20,16],"pos":[416,160],"script":"main.11","pattern":"33","value":0}
-button6:{"type":"button","size":[20,16],"pos":[416,180],"script":"main.11","pattern":"34","value":0}
-button7:{"type":"button","size":[20,16],"pos":[416,200],"script":"main.11","pattern":"35","value":0}
-button8:{"type":"button","size":[20,16],"pos":[416,220],"script":"main.11","pattern":"36","value":0}
-button9:{"type":"button","size":[20,16],"pos":[440,160],"script":"main.11","pattern":"37","value":0}
-button10:{"type":"button","size":[20,16],"pos":[440,180],"script":"main.11","pattern":"38","value":0}
-button11:{"type":"button","size":[20,16],"pos":[440,200],"script":"main.11","pattern":"39","value":0}
-button12:{"type":"button","size":[20,16],"pos":[440,220],"script":"main.11","pattern":"40","value":0}
-button13:{"type":"button","size":[20,16],"pos":[464,160],"script":"main.11","pattern":"41","value":0}
-button14:{"type":"button","size":[20,16],"pos":[464,180],"script":"main.11","pattern":"42","value":0}
-button15:{"type":"button","size":[20,16],"pos":[464,200],"script":"main.11","pattern":"43","value":0}
-button16:{"type":"button","size":[20,16],"pos":[464,220],"script":"main.11","pattern":"44","value":0}
-button17:{"type":"button","size":[20,16],"pos":[488,160],"script":"main.11","pattern":"45","value":0}
-button18:{"type":"button","size":[20,16],"pos":[488,180],"script":"main.11","pattern":"5","value":0}
-button19:{"type":"button","size":[20,16],"pos":[488,200],"script":"main.11","pattern":"13","value":0}
-button20:{"type":"button","size":[20,16],"pos":[488,220],"script":"main.11","value":0}
+canvaslebrushsixteen:{"type":"canvas","size":[144,90],"pos":[425,155],"locked":1,"border":0,"image":"%%IMG3AJAAcQQwyEmrvTjrzbv/YIaMZGmeaKqubOu+cIwGcm3feK6T9O7/wGCrJywajzYicslsjpTOqNQHnVqvsCp2yzVpu2DsN0yOjsto5DnNDq7bcN17No+z6yW8Pa1H9PdlfX+AYXqDhGB4h4hddYuMXHOPkFtvk5RiLJeYV2ebnFZjn6BTX6OkUlqnqGYzrJhVlhOvZKu0nbestrmpvKS7vk3AwUvDxEfGx0XJym7NjMzPVNKE0dQ51tc32do13N0x3+Av4uND5nfofOpo5eyu74Xx8vON9fb3lfn6+7j9of8ABuw1sFVBJ+7yJby3sF7DeQ/jRXw3kV1FdRfRZTS3cVxHcB+7hdQ28lpJaielpXy2sllLZS+PxSQ2M1hNXzd55cy181ZPWj9fBdV1EGFRYUeZDEW19FfSYk/VREU21UhTUFc5ZYVVdVlXIVsphRhLtqzZs2grMFjLtq3bt3Djyp1Lt67du3jzwk3Lt6/fv4ADCx5MeEIE","scale":1}
+button5:{"type":"button","size":[16,16],"pos":[430,160],"script":"main.changebrush","pattern":"33","value":0}
+button6:{"type":"button","size":[16,16],"pos":[430,180],"script":"main.changebrush","pattern":"34","value":0}
+button7:{"type":"button","size":[16,16],"pos":[430,200],"script":"main.changebrush","pattern":"35","value":0}
+button8:{"type":"button","size":[16,16],"pos":[430,220],"script":"main.changebrush","pattern":"36","value":0}
+button9:{"type":"button","size":[16,16],"pos":[450,160],"script":"main.changebrush","pattern":"37","value":0}
+button10:{"type":"button","size":[16,16],"pos":[450,180],"script":"main.changebrush","pattern":"38","value":0}
+button11:{"type":"button","size":[16,16],"pos":[450,200],"script":"main.changebrush","pattern":"39","value":0}
+button12:{"type":"button","size":[16,16],"pos":[450,220],"script":"main.changebrush","pattern":"40","value":0}
+button13:{"type":"button","size":[16,16],"pos":[470,160],"script":"main.changebrush","pattern":"41","value":0}
+button14:{"type":"button","size":[16,16],"pos":[470,180],"script":"main.changebrush","pattern":"42","value":0}
+button15:{"type":"button","size":[16,16],"pos":[470,200],"script":"main.changebrush","pattern":"43","value":0}
+button16:{"type":"button","size":[16,16],"pos":[470,220],"script":"main.changebrush","pattern":"44","value":0}
+button17:{"type":"button","size":[16,16],"pos":[490,160],"script":"main.changebrush","pattern":"45","value":0}
+button18:{"type":"button","size":[16,16],"pos":[490,180],"script":"main.changebrush","pattern":"5","value":0}
+button19:{"type":"button","size":[16,16],"pos":[490,200],"script":"main.changebrush","pattern":"13","value":0}
+button20:{"type":"button","size":[16,16],"pos":[490,220],"script":"main.changebrush","value":0}
+lestash1:{"type":"contraption","size":[57,35],"pos":[365,155],"def":"wigglyStash","widgets":{"preview":{},"stashbutton":{},"recallbutton":{},"data":{}}}
+lestash2:{"type":"contraption","size":[57,35],"pos":[365,192],"def":"wigglyStash","widgets":{"preview":{},"stashbutton":{},"recallbutton":{},"data":{}}}
 
-{script:main.10}
-on click do
-end
-{end}
-
-{script:main.11}
+{script:main.changebrush}
 on click do
  changetool[me "hi%i" format me.pattern]
 end
@@ -87,12 +84,12 @@ end
 
 {script:main.0}
 on backup do
- if cursor.value>0
-  history.images:(3*1+cursor.value) drop history.images
-  cursor.value:0
+ if cursorlestack.value>0
+  history.images:(3*1+cursorlestack.value) drop history.images
+  cursorlestack.value:0
  end
  history.images:getframes[] , history.images
- history.images:((1+max cursor.interval)*3) limit history.images
+ history.images:((1+max cursorlestack.interval)*3) limit history.images
 end
 
 on getframes do
@@ -100,23 +97,23 @@ on getframes do
 end
 
 on undo do
- if (cursor.value=(count history.images)/3)|(0=count history.images)
+ if (cursorlestack.value=(count history.images)/3)|(0=count history.images)
   play["erase1"]
  else
-  if cursor.value=0 backup[] end
-  cursor.value:cursor.value+1
-  setframes[(3 window history.images)[cursor.value]]
+  if cursorlestack.value=0 backup[] end
+  cursorlestack.value:cursorlestack.value+1
+  setframes[(3 window history.images)[cursorlestack.value]]
   play["erase2"]
  end
 end
 
 on redo do
- if cursor.value=0
+ if cursorlestack.value=0
   play["erase1"]
  else
-  cursor.value:cursor.value-1
-  setframes[(3 window history.images)[cursor.value]]
-  if cursor.value=0 history.images:(3 drop history.images) end
+  cursorlestack.value:cursorlestack.value-1
+  setframes[(3 window history.images)[cursorlestack.value]]
+  if cursorlestack.value=0 history.images:(3 drop history.images) end
   play["erase2"]
  end
 end
@@ -224,7 +221,7 @@ on click do
 end
 {end}
 
-{script:main.12}
+{script:main.customredo}
 on click do
  redo[]
 end
@@ -493,14 +490,9 @@ field6:{"type":"field","size":[60,15],"pos":[291,217],"locked":1,"show":"transpa
 field7:{"type":"field","size":[60,15],"pos":[291,241],"locked":1,"show":"transparent","border":0,"value":"yellow"}
 field8:{"type":"field","size":[159,14],"pos":[281,163],"locked":1,"border":0,"value":"values are in hexadecimal RRGGBB!"}
 field9:{"type":"field","size":[155,16],"pos":[109,147],"locked":1,"font":"menu","border":0,"align":"center","value":"Preset Palettes:"}
-pals:{"type":"grid","size":[155,138],"pos":[109,169],"locked":1,"script":"options.4","headers":0,"lines":0,"widths":[128,82],"format":"ss","value":{"name":["default                 ","twilight 5              ","nicole punk 82          ","capp-5                  ","marumaru gum            ","retrotronic             ","blessing                ","neo-5                   ","ink                     ","theory of 5             ","sashimi                 ","autumn birch            ","pb and j                ","leon soul               ","5 sheep                 ","juliet                  ","neon moon tarot         ","cyber ping pong         ","ru5ty                   ","a blood-steeped corridor","silent five             ","sweetdusk-5             ","+100                    ","woodland 5              ","infinite ikea           ","chaos                   ","cold sands              ","leopold's dreams        ","sunset red              ","golden sunset           ","funtime5                ","sadness                 ","detective bass          ","2k21                    "],"palette":["FFFFFF|000000|FF0097|0097FF|FFFF00","fbbbad|292831|ee8695|4a7a96|333f58","faf5d8|21181b|d8ae8b|cd5f2a|f2ab37","f0eff4|6b61ff|8ecde6|66a1ff|fadda2","f3eded|82939b|fda9a9|96beb1|b9eedc","d1bfb0|392b35|bb474f|486b7f|7a9c96","d8bfd8|74569b|ffb3cb|96fbc7|f7ffae","effafa|0e0e0e|e624af|3df9ea|5433be","eaf0d8|1f1f29|413a42|596070|96a2b3","e2e9e9|232221|cb2f2c|1b96ba|f1be43","ededde|804776|dd8d9a|c7c6c1|c15c80","e3f6d5|873131|ec6f1c|9ce77f|f6ae3c","eabe7b|580a5c|db8951|8d1c7a|b45b27","ffeaff|4c3299|ef833e|99d7d7|ffe17f","ffdae8|480a30|ff80ae|ff327c|b41360","ffe8e1|292b30|ab6c84|613854|ffc4d1","8767bd|000000|fe0094|70b9fb|5f4886","d3d6b2|4c282f|554c80|569bc9|84cec9","fadd93|2e0d20|8f3808|451c1c|cf7a3a","d4e2cc|17152e|e43254|3c566c|84aea4","b9eba7|0c1024|057f8e|0a3354|04c894","fcbbab|000000|b96889|19112b|583163","ecece0|3b3149|d47563|5c6181|ecc197","f6ebc3|4e1826|6b3e3f|8b8571|b8b98a","f6f0f7|12223c|104a7d|45a9ff|f6d76b","cfc420|51244a|f5bb75|36642b|73a527","d6dea5|442252|61433c|807456|adab8e","8cefb6|372134|474476|4888b7|6dbcb9","ee243d|0d101b|6b2341|281a2d|af2747","ffecd6|25213e|7a4a5a|cb765c|ffb873","ffd090|382b00|e07ab3|716cb0|79e0cf","fbfef9|2e364d|ddc8f9|425d87|7d95de","efd98b|160402|4c3012|585931|b1954c","47f7b5|1f0763|ff5eff|193ce8|17b6b6"]},"row":0}
-field10:{"type":"field","size":[98,14],"pos":[138,310],"locked":1,"border":0,"value":{"text":["find more on ","lospec","!"],"font":["","",""],"arg":["","https://lospec.com/palette-list",""]}}
-thumbnail:{"type":"canvas","size":[118,87],"pos":[293,35],"locked":1,"animated":1,"volatile":1,"script":"options.5","scale":1}
-cancel:{"type":"contraption","size":[96,42],"pos":[1,299],"script":"alter.11","show":"transparent","def":"animButton","widgets":{"c":{"size":[96,42],"show":"transparent"},"b":{"size":[96,42]},"ims":{"size":[100,9],"pos":[117,2],"value":{"text":["","i","i"],"font":["","",""],"arg":["","%%IMG3AGAAKgZAgHBILBqPyKQyGWg6n9Doc0mtKqXYrHYbtXq54LAY7DWOz2eQet1cu9+gaXmIlsLjgfu7rYfn/XJzWnd/fW58homKeIFfiIuQaoV6j36JWGVPkZuKmoSVe1KOlaCGpaGPTp+njF1WqodYfZ6UUGygtICir6SDq6d2krisrY1LsLG+ybnCfJPIzaa7VdC3k9ao0cm1z8TFTaPX2tnbjOSr49xQo9y63c7I1ahRs9NU8tjWve/56rb+TniJWxas3Dh8+v4gtHfFGxiD2hA24/cLHDWHD9OZ29gOIkGBnUrRqgZLosaFAe+Z1FhuC8tz/VCp9PZy4jd6K+VJTMmEZs1oslTlFAmM55GVHrfpbMMsTsyny3r65KiLakRoJYmyMkanKbp2Swv58mqSKwB6l7bCu4a1oFWb9SwScfuV4FOS/6D+nGgmL9gshwhx2rmIK1qAdDmZUvyrr9eJhxlLvqSuSGK4kzMXlib37GWnmkMD5Gw5suhOgW/W0VLa7+SB81bLDuD4ceHZuMcc/Ze7t29XtX8LF95wOJo5yC/2Ts68eXEyzqNLP2Z2uvXmQQA=","%%IMG3AGAAKgZAgHBILBqPyKRyyWw6n9CodEqtWoeBrHbL7W6vV694TC53wUWzes1WV9twOGNOz9LveMZ3Gvfm9QF/eHaCeYGGe1Fkf4eFd4SOkZKAWnyQk5hzjYKXhpFnilqZo5JbnJ2DiU+mj5ulroyidaiUsLOVUrK3XYWsp766u72qq51lv7S1usGayc1ZlrBmiFzUh5vMzKm4UNqUsa6y2cnB3q3QobTe49fGzuLOz+jd5Ki+tfK3jmPD3MW2z865wwbJnLxqyHLFO7btnL5+hMwRY6IFwb5pDx8axJdxWzqLEBcFdPitX0Nw85ZUBPkLZceSG0u+3EVxCwKW4Ewq4yWz5UlqNbPcxEkN4k5eMbUZ9Hdk5c2LAAOK+ZZUXb2URpwSLdpSqZ17mmb23BYgic2nUE16bXcJni2wApFwQasz59pdPOGOJSvX5qd3EQcKvLdu40Qhc4fmJNuIHeNwV/9ixaLVLr86jEgtnXQ48dajPElxFo0ya2KUoUmrzgOidWuAE7t81ru69h3XIKIqS4PQk+3fyBYyBdAb+GjMoPuMaUpb8yvl0Icjbv48unU3Zt1e314WTVDu3sP/ayO+/JvD5tMvCQI="]}},"ai":{"size":[100,8],"pos":[117,16],"value":"4"}}}
+pal16:{"type":"grid","size":[149,125],"pos":[0,169],"locked":1,"script":"options.palette16","headers":0,"lines":0,"widths":[128,82],"format":"ss","value":{"16 Color":["Sweetie 16","STEAM LORDS","SLOWSHOUT16","Tiffany Lamp","Pantheons16","Nature Country","Psyche16","Twilight Bog","Yu-No (PC-98)","Sulu","Sara-98A","Retrobubble.","Twilight Town","Pastel EGA","Sickly Rainbow","Groovy-16","Grayscale","Jonk 16","System Mini 16","Cardboard Paint","Autumn Breeze","Miyazaki 16","Pastel Horizon","Shido CyberNeon","Blighted Paint","Aragon16","Vampire Waltz","Pastel Pop-16"],"palette":["f4f4f4|1a1c2c|94b0c2|566c86|333c57|73eff7|41a6f6|3b5dc9|257179|38b764|a7f070|ffcd75|ef7d57|29366f|b13e53|5d275d","c0d1cc|170e19|213b25|3a604a|4f7754|a19f7c|77744f|775c4f|603b3a|3b2137|2f213b|433a60|4f5277|65738c|7c94a1|a0b9ba","eedebe|23222f|b9b595|8e9593|638691|c18080|6a7d5f|485a5c|4e5d79|cf982e|b97022|544a36|52485f|a75141|754242|37242c","dff2f8|51468c|fddb97|e3c179|b0a273|91754b|dff2f8|aad8eb|61c0ec|5699dd|9e4d54|8a3c42|dda0af|a880a3|acb0e5|706db2","fff4e0|2b2b26|939487|cecfbf|adac8e|6a6c56|4b3b9c|3e88b7|eca549|ef692f|ac2925|57253b|db3b5d|f28a91|f7a983|ffd8ba","e3eca7|090909|addcd3|6ea666|4f742a|3c1806|8d3a17|d2815f|c57738|ca9037|e8d973|dadc72|b8af4e|6f782a|383d12|101a09","fafafa|071822|ebe8da|ff7196|eb418a|304059|f0007d|7f0d4b|962bb5|3c43ad|ffdd5f|fbb03b|b9e226|5ab00f|5dd8d6|40a095","e1e6ea|1f1714|a48db6|785a96|c8bfbf|b8948e|a66470|704b63|383f38|727546|839c77|b8cfb9|89baab|5d8da2|4e5a6d|343943","ffffff|000000|99aabb|ff99aa|dd4455|ffbb66|339988|556666|444444|222222|bbccff|5566cc|ffddcc|eeaa99|bb7766|773333","e3e3f2|474751|8e8ea3|ecbcff|bcecff|bcffec|ecffbc|ffecbc|ffbcec|babad3|b570ee|70b5ee|70eeb5|b5ee70|eeb570|ee70b5","fffff2|1c0810|a5baae|71958d|657150|713410|551008|7d1818|ae4c30|ca713c|daa56d|ead6aa|f69d9d|ee7175|e24050|b61030","ffface|120e1f|f68b69|e0b56d|9e8f84|ab3229|d7793f|fff169|654147|6a2435|95533d|62ab46|284646|312139|525b80|525b80","ffc5a3|21181b|f1b640|ff8a32|e64639|ac2f45|be6a62|904d57|771d50|4e1d4c|686f9a|404974|283440|3d2935|291d2b|1b1f22","f6f6f6|414141|dd4274|db7497|1db37b|70e6ae|4c96d7|a5d2f3|bf2faf|df7cd3|cbae25|faf8ac|bfbfbf|8d8d8d|41bcbc|5fe4e4","faffec|5a5aff|7785bf|add640|92ae80|ae48ae|8552d6|d63d85|ff325a|f16645|e3992e|c8ff00|d6cc17|d3d6f0|abaef5|8485fa","fbffeb|0d0023|ffcbcd|ff9bd9|96ffc2|ff615b|f50070|0c006b|b2ff00|ffc900|e7dcb9|9aa0f5|aeb500|007d8d|b213b9|316eff","ffffff|000000|e7e7e7|d1d1d1|bdbdbd|ababab|9b9b9b|8c8c8c|7e7e7e|717171|646464|565656|474747|383838|282828|181818","f4f0ea|242e36|d6d6d6|a1b0be|6988a1|b7bca2|798766|455951|595b7c|95819d|c9a5a9|f4dec2|704f4f|ebc790|e39669|b7635b","fcfcfc|000000|f8ec20|3cd4e4|f8a850|ac581c|fc74ec|b82cd0|70f828|208800|fc4848|a82814|7070fc|b0b0b8|68605c|1c38ac","d2b2a0|3e2a2e|be7a80|854865|4d3956|575777|85a7b6|518183|32554f|457c60|75a165|d2a865|b9684f|6f544c|b18979|8f3641","f6f0e9|2d1a15|6b2511|b61d1d|ce421a|e56520|e77e1b|f7a31b|ffbb18|d9cdbd|e5d1a3|e5c57b|e1b36a|703424|904936|a35c49","ebecdc|232228|c3d5c7|2485a6|284261|e3c054|a1bf41|55a058|1e7453|e6928a|c65046|754d45|54bad2|b8b095|878573|5f5854","ffffff|53437f|a89fcc|ffd9e8|ff9bb6|9968e2|be9bff|7fceff|6d81ff|2c6f99|00bcaa|ff5470|ff9b71|c48f9e|ffd9ae|8e586f","ffffff|00033c|add4fa|4e6ea8|2a2e79|ff004e|b10585|600088|ac29ce|ff5cff|00f7ff|008ac5|003884|005260|0aff52|009d4a","c9c4b6|41303a|749c6b|457967|9fb49a|6ca28d|4b7b7d|43526c|453c55|976a4a|ac9253|b4b18f|976c73|6c475a|7e4d4b|583a41","f9f8dd|272120|d2e291|a8d455|9cab6c|5c8d58|3b473c|e0bf7a|ba9572|876661|b7c4d0|8daad6|6b72d4|9197b6|8b8893|54555c","c1c799|120004|ffffa6|94ffa6|c1c799|269e66|3e7d6f|3b3441|710b31|b87b4d|a63a3a|a10d2d|664ca1|2f1433|6f81c7|00c5cc","fffcff|000000|e6e1f2|b2b7e1|7b8ac6|ffd9f4|caaff5|ad80a6|fba2d7|fae0c7|f0abab|97c4aa|bfedf5|e1adc3|73c9eb|595b7d"]},"row":0,"col":0}
 
-pal16:{"type":"grid","size":[164,98],"pos":[3,65],"locked":1,"script":"options.6","headers":1,"lines":0,"widths":[128,82],"format":"ss","value":{"16 Color":["Sweetie 16","STEAM LORDS","SLOWSHOUT16","Tiffany Lamp","Pantheons16","Nature Country","Psyche16","Twilight Bog","Yu-No (PC-98)","Sulu","Sara-98A","Retrobubble.","Twilight Town","Pastel EGA","Sickly Rainbow","Groovy-16","Grayscale","Jonk 16","System Mini 16","Cardboard Paint","Autumn Breeze","Miyazaki 16","Pastel Horizon","Shido CyberNeon","Blighted Paint","Aragon16","Vampire Waltz","Pastel Pop-16"],"palette":["f4f4f4|1a1c2c|94b0c2|566c86|333c57|73eff7|41a6f6|3b5dc9|257179|38b764|a7f070|ffcd75|ef7d57|29366f|b13e53|5d275d","c0d1cc|170e19|213b25|3a604a|4f7754|a19f7c|77744f|775c4f|603b3a|3b2137|2f213b|433a60|4f5277|65738c|7c94a1|a0b9ba","eedebe|23222f|b9b595|8e9593|638691|c18080|6a7d5f|485a5c|4e5d79|cf982e|b97022|544a36|52485f|a75141|754242|37242c","dff2f8|51468c|fddb97|e3c179|b0a273|91754b|dff2f8|aad8eb|61c0ec|5699dd|9e4d54|8a3c42|dda0af|a880a3|acb0e5|706db2","fff4e0|2b2b26|939487|cecfbf|adac8e|6a6c56|4b3b9c|3e88b7|eca549|ef692f|ac2925|57253b|db3b5d|f28a91|f7a983|ffd8ba","e3eca7|090909|addcd3|6ea666|4f742a|3c1806|8d3a17|d2815f|c57738|ca9037|e8d973|dadc72|b8af4e|6f782a|383d12|101a09","fafafa|071822|ebe8da|ff7196|eb418a|304059|f0007d|7f0d4b|962bb5|3c43ad|ffdd5f|fbb03b|b9e226|5ab00f|5dd8d6|40a095","e1e6ea|1f1714|a48db6|785a96|c8bfbf|b8948e|a66470|704b63|383f38|727546|839c77|b8cfb9|89baab|5d8da2|4e5a6d|343943","ffffff|000000|99aabb|ff99aa|dd4455|ffbb66|339988|556666|444444|222222|bbccff|5566cc|ffddcc|eeaa99|bb7766|773333","e3e3f2|474751|8e8ea3|ecbcff|bcecff|bcffec|ecffbc|ffecbc|ffbcec|babad3|b570ee|70b5ee|70eeb5|b5ee70|eeb570|ee70b5 ","fffff2|1c0810|a5baae|71958d|657150|713410|551008|7d1818|ae4c30|ca713c|daa56d|ead6aa|f69d9d|ee7175|e24050|b61030","ffface|120e1f|f68b69|e0b56d|9e8f84|ab3229|d7793f|fff169|654147|6a2435|95533d|62ab46|284646|312139|525b80|525b80","ffc5a3|21181b|f1b640|ff8a32|e64639|ac2f45|be6a62|904d57|771d50|4e1d4c|686f9a|404974|283440|3d2935|291d2b|1b1f22","f6f6f6|414141|dd4274|db7497|1db37b|70e6ae|4c96d7|a5d2f3|bf2faf|df7cd3|cbae25|faf8ac|bfbfbf|8d8d8d|41bcbc|5fe4e4","faffec|5a5aff|7785bf|add640|92ae80|ae48ae|8552d6|d63d85|ff325a|f16645|e3992e|c8ff00|d6cc17|d3d6f0|abaef5|8485fa","fbffeb|0d0023|ffcbcd|ff9bd9|96ffc2|ff615b|f50070|0c006b|b2ff00|ffc900|e7dcb9|9aa0f5|aeb500|007d8d|b213b9|316eff","ffffff|000000|e7e7e7|d1d1d1|bdbdbd|ababab|9b9b9b|8c8c8c|7e7e7e|717171|646464|565656|474747|383838|282828|181818","f4f0ea|242e36|d6d6d6|a1b0be|6988a1|b7bca2|798766|455951|595b7c|95819d|c9a5a9|f4dec2|704f4f|ebc790|e39669|b7635b","fcfcfc|000000|f8ec20|3cd4e4|f8a850|ac581c|fc74ec|b82cd0|70f828|208800|fc4848|a82814|7070fc|b0b0b8|68605c|1c38ac","d2b2a0|3e2a2e|be7a80|854865|4d3956|575777|85a7b6|518183|32554f|457c60|75a165|d2a865|b9684f|6f544c|b18979|8f3641","f6f0e9|2d1a15|6b2511|b61d1d|ce421a|e56520|e77e1b|f7a31b|ffbb18|d9cdbd|e5d1a3|e5c57b|e1b36a|703424|904936|a35c49","ebecdc|232228|c3d5c7|2485a6|284261|e3c054|a1bf41|55a058|1e7453|e6928a|c65046|754d45|54bad2|b8b095|878573|5f5854","ffffff|53437f|a89fcc|ffd9e8|ff9bb6|9968e2|be9bff|7fceff|6d81ff|2c6f99|00bcaa|ff5470|ff9b71|c48f9e|ffd9ae|8e586f","ffffff|00033c|add4fa|4e6ea8|2a2e79|ff004e|b10585|600088|ac29ce|ff5cff|00f7ff|008ac5|003884|005260|0aff52|009d4a","c9c4b6|41303a|749c6b|457967|9fb49a|6ca28d|4b7b7d|43526c|453c55|976a4a|ac9253|b4b18f|976c73|6c475a|7e4d4b|583a41","f9f8dd|272120|d2e291|a8d455|9cab6c|5c8d58|3b473c|e0bf7a|ba9572|876661|b7c4d0|8daad6|6b72d4|9197b6|8b8893|54555c","c1c799|120004|ffffa6|94ffa6|c1c799|269e66|3e7d6f|3b3441|710b31|b87b4d|a63a3a|a10d2d|664ca1|2f1433|6f81c7|00c5cc","fffcff|000000|e6e1f2|b2b7e1|7b8ac6|ffd9f4|caaff5|ad80a6|fba2d7|fae0c7|f0abab|97c4aa|bfedf5|e1adc3|73c9eb|595b7d"]},"row":0,"col":0}
-
-{script:options.6}
+{script:options.palette16}
 on click row do
  p:"|"split me.rowvalue.palette
  if 16~count p
@@ -540,6 +532,11 @@ on click row do
  end
 end
 {end}
+pals:{"type":"grid","size":[145,138],"pos":[140,169],"locked":1,"script":"options.4","headers":0,"lines":0,"widths":[128,82],"format":"ss","value":{"name":["default","twilight 5","nicole punk 82","capp-5","marumaru gum","retrotronic","blessing","neo-5","ink","theory of 5","sashimi","autumn birch","pb and j","leon soul","5 sheep","juliet","neon moon tarot","cyber ping pong","ru5ty","a blood-steeped corridor","silent five","sweetdusk-5","+100","woodland 5","infinite ikea","chaos","cold sands","leopold's dreams","sunset red","golden sunset","funtime5","sadness","detective bass","2k21"],"palette":["FFFFFF|000000|FF0097|0097FF|FFFF00","fbbbad|292831|ee8695|4a7a96|333f58","faf5d8|21181b|d8ae8b|cd5f2a|f2ab37","f0eff4|6b61ff|8ecde6|66a1ff|fadda2","f3eded|82939b|fda9a9|96beb1|b9eedc","d1bfb0|392b35|bb474f|486b7f|7a9c96","d8bfd8|74569b|ffb3cb|96fbc7|f7ffae","effafa|0e0e0e|e624af|3df9ea|5433be","eaf0d8|1f1f29|413a42|596070|96a2b3","e2e9e9|232221|cb2f2c|1b96ba|f1be43","ededde|804776|dd8d9a|c7c6c1|c15c80","e3f6d5|873131|ec6f1c|9ce77f|f6ae3c","eabe7b|580a5c|db8951|8d1c7a|b45b27","ffeaff|4c3299|ef833e|99d7d7|ffe17f","ffdae8|480a30|ff80ae|ff327c|b41360","ffe8e1|292b30|ab6c84|613854|ffc4d1","8767bd|000000|fe0094|70b9fb|5f4886","d3d6b2|4c282f|554c80|569bc9|84cec9","fadd93|2e0d20|8f3808|451c1c|cf7a3a","d4e2cc|17152e|e43254|3c566c|84aea4","b9eba7|0c1024|057f8e|0a3354|04c894","fcbbab|000000|b96889|19112b|583163","ecece0|3b3149|d47563|5c6181|ecc197","f6ebc3|4e1826|6b3e3f|8b8571|b8b98a","f6f0f7|12223c|104a7d|45a9ff|f6d76b","cfc420|51244a|f5bb75|36642b|73a527","d6dea5|442252|61433c|807456|adab8e","8cefb6|372134|474476|4888b7|6dbcb9","ee243d|0d101b|6b2341|281a2d|af2747","ffecd6|25213e|7a4a5a|cb765c|ffb873","ffd090|382b00|e07ab3|716cb0|79e0cf","fbfef9|2e364d|ddc8f9|425d87|7d95de","efd98b|160402|4c3012|585931|b1954c","47f7b5|1f0763|ff5eff|193ce8|17b6b6"]},"row":0}
+field10:{"type":"field","size":[98,14],"pos":[138,310],"locked":1,"border":0,"value":{"text":["find more on ","lospec","!"],"font":["","",""],"arg":["","https://lospec.com/palette-list",""]}}
+thumbnail:{"type":"canvas","size":[118,87],"pos":[293,35],"locked":1,"animated":1,"volatile":1,"script":"options.5","scale":1}
+cancel:{"type":"contraption","size":[96,42],"pos":[1,299],"script":"alter.11","show":"transparent","def":"animButton","widgets":{"c":{"size":[96,42],"show":"transparent"},"b":{"size":[96,42]},"ims":{"size":[100,9],"pos":[117,2],"value":{"text":["","i","i"],"font":["","",""],"arg":["","%%IMG3AGAAKgZAgHBILBqPyKQyGWg6n9Doc0mtKqXYrHYbtXq54LAY7DWOz2eQet1cu9+gaXmIlsLjgfu7rYfn/XJzWnd/fW58homKeIFfiIuQaoV6j36JWGVPkZuKmoSVe1KOlaCGpaGPTp+njF1WqodYfZ6UUGygtICir6SDq6d2krisrY1LsLG+ybnCfJPIzaa7VdC3k9ao0cm1z8TFTaPX2tnbjOSr49xQo9y63c7I1ahRs9NU8tjWve/56rb+TniJWxas3Dh8+v4gtHfFGxiD2hA24/cLHDWHD9OZ29gOIkGBnUrRqgZLosaFAe+Z1FhuC8tz/VCp9PZy4jd6K+VJTMmEZs1oslTlFAmM55GVHrfpbMMsTsyny3r65KiLakRoJYmyMkanKbp2Swv58mqSKwB6l7bCu4a1oFWb9SwScfuV4FOS/6D+nGgmL9gshwhx2rmIK1qAdDmZUvyrr9eJhxlLvqSuSGK4kzMXlib37GWnmkMD5Gw5suhOgW/W0VLa7+SB81bLDuD4ceHZuMcc/Ze7t29XtX8LF95wOJo5yC/2Ts68eXEyzqNLP2Z2uvXmQQA=","%%IMG3AGAAKgZAgHBILBqPyKRyyWw6n9CodEqtWoeBrHbL7W6vV694TC53wUWzes1WV9twOGNOz9LveMZ3Gvfm9QF/eHaCeYGGe1Fkf4eFd4SOkZKAWnyQk5hzjYKXhpFnilqZo5JbnJ2DiU+mj5ulroyidaiUsLOVUrK3XYWsp766u72qq51lv7S1usGayc1ZlrBmiFzUh5vMzKm4UNqUsa6y2cnB3q3QobTe49fGzuLOz+jd5Ki+tfK3jmPD3MW2z865wwbJnLxqyHLFO7btnL5+hMwRY6IFwb5pDx8axJdxWzqLEBcFdPitX0Nw85ZUBPkLZceSG0u+3EVxCwKW4Ewq4yWz5UlqNbPcxEkN4k5eMbUZ9Hdk5c2LAAOK+ZZUXb2URpwSLdpSqZ17mmb23BYgic2nUE16bXcJni2wApFwQasz59pdPOGOJSvX5qd3EQcKvLdu40Qhc4fmJNuIHeNwV/9ixaLVLr86jEgtnXQ48dajPElxFo0ya2KUoUmrzgOidWuAE7t81ru69h3XIKIqS4PQk+3fyBYyBdAb+GjMoPuMaUpb8yvl0Icjbv48unU3Zt1e314WTVDu3sP/ayO+/JvD5tMvCQI="]}},"ai":{"size":[100,8],"pos":[117,16],"value":"4"}}}
+
 {script:options.0}
 on view do
  f:"%06H"
