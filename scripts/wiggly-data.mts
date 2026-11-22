@@ -116,6 +116,7 @@ const totalBak = 4;
 
 // `main.6` is required for override
 export const undoRedoControls = `
+buttonleimport:{"type":"button","size":[60,20],"pos":[90,302],"script":"main.customimport","text":"Import"}
 buttonleundo:{"type":"button","size":[60,20],"pos":[225,302],"script":"main.6","text":"Undo"}
 buttonleredo:{"type":"button","size":[60,20],"pos":[225,322],"script":"main.customredo","text":"Redo"}
 cursorlestack:{"type":"slider","size":[60,10],"pos":[225,292],"interval":[0,${totalBak}],"style":"compact","show":"none"}
@@ -131,6 +132,20 @@ end
 {script:main.customredo}
 on click do
  redo[]
+end
+{end}
+
+{script:main.customimport}
+on click do
+ gif:read["image" "frames"]
+ if gif
+  if 3=count gif.frames
+   backup[]
+   setframes[gif.frames]
+  else
+   alert["GIF must have exactly 3 frames."]
+  end
+ end
 end
 {end}
 `.trim();
@@ -170,4 +185,20 @@ on redo do
   play["erase2"]
  end
 end
+`.trim();
+
+export const importScript = `
+{script:main.import}
+on click do
+ gif:read["image" "frames"]
+ if gif
+  if 3=count gif.frames
+   backup[]
+   setframes[gif.frames]
+  else
+   alert["GIF must have exactly 3 frames."]
+  end
+ end
+end
+{end}
 `.trim();
