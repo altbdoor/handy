@@ -16,7 +16,7 @@ const brushMap = {
   button17: "45", // grays
   button18: "5", // dark pattern
   button19: "13", // light pattern
-  button20: undefined, // erase colors
+  button20: "32", // background color (button default pattern)
 };
 
 const origin = [430, 160];
